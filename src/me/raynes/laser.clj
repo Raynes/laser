@@ -66,17 +66,28 @@
   (fn [loc] (every? identity (map #(% loc) selectors))))
 
 (defn select-or
-  "Like or, but for selectors. Returns true iff at least one selector matches."
+  "Like or, but for selectors. Returns true iff at least one selector matches.
+   Like 'foo,bar' in css."
   [& selectors]
   (fn [loc] (some (comp not identity) (map #(% loc) selectors))))
 
-(defn child-of
+(defn descendant-of
   "A selector that matches iff child selector returns truthy, and
-   parent-selector returns truthy for some parent node."
+   parent-selector returns truthy for some parent node. Like
+   'foo bar' in css."
   [parent-selector child-selector]
   (fn [loc]
     (and (child-selector loc)
          (some parent-selector (safe-iterate zip/up loc)))))
+
+(defn child-of
+  "A selector that matches iff child selector returns truth
+   and parent-selector returns true for the immediate parent node.
+   This is like 'foo > bar' in css."
+  [parent-selector child-selector]
+  (fn [loc]
+    (and (child-selector loc)
+         (parent-selector (zip/up loc)))))
 
 ;; Transformers
 
