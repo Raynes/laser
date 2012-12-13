@@ -72,8 +72,8 @@
   (fn [loc] (some (comp not identity) (map #(% loc) selectors))))
 
 (defn descendant-of
-  "A selector that matches iff child selector returns truthy, and
-   parent-selector returns truthy for some parent node. Like
+  "A selector that matches iff child selector matches, and
+   parent-selector matches for some parent node. Like
    'foo bar' in css."
   [parent-selector child-selector]
   (fn [loc]
@@ -90,8 +90,8 @@
            (left loc)))))
 
 (defn child-of
-  "A selector that matches iff child selector returns truth
-   and parent-selector returns true for the immediate parent node.
+  "A selector that matches iff child selector matches
+   and parent-selector matches for the immediate parent node.
    This is like 'foo > bar' in css."
   [parent-selector child-selector]
   (fn [loc]
