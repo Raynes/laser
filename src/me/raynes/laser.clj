@@ -113,3 +113,10 @@
   (fn [node]
     (update-in node [:attrs :class]
                #(string/join " " (remove #{class} (string/split % #" "))))))
+
+(defn transform
+  "Transform an HTML string."
+  [s & fns]
+  (let [pairs (partition 2 fns)]
+    (zip-to-html
+     (traverse-zip pairs (parse-html s)))))
