@@ -80,6 +80,15 @@
     (and (child-selector loc)
          (some parent-selector (safe-iterate zip/up loc)))))
 
+(defn ajacent-to
+  "A selector that matches iff target selector matches AND
+   left selector matches the element immediately preceding it."
+  [target left]
+  (fn [loc]
+    (and (target loc)
+         (when-let [loc (zip/left loc)]
+           (left loc)))))
+
 (defn child-of
   "A selector that matches iff child selector returns truth
    and parent-selector returns true for the immediate parent node.
