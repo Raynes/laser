@@ -13,6 +13,9 @@ selectors to select pieces of HTML and transformation functions to transform the
 HTML the way you want. Laser comes with a bunch of selectors and transformers
 built in.
 
+Huge props to David Santiago for writing
+[hickory](https://github.com/davidsantiago/hickory) and helping me out with zippers.
+
 ## WHYYYYYYYYY!?!?!
 
 I wrote laser for a couple of reasons.
