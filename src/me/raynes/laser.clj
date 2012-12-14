@@ -58,7 +58,7 @@
 (defn ^:private apply-selector
   "If the selector matches, run transformation on the loc."
   [loc [selector transform]]
-  (if (selector loc)
+  (if (and (selector loc) (map? (zip/node loc)))
     (zip/edit loc transform)
     loc))
 
