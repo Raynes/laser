@@ -265,7 +265,10 @@ don't really know how they measure up with large templates and complex
 selecting/transforming. I think they are all close enough that the most
 important thing is using what you like the most.
 
+## TODO
 
+Biggest TODO at the moment is a function for turning a string representing a CSS
+selector into a selector function you can use (by combining existing selectors).
 
 ## License
 
