@@ -155,6 +155,11 @@
 (defn content
   "Set content of node to s."
   [s]
+  (fn [node] (assoc node :content [(escape-html s)])))
+
+(defn html-content
+  "Set content of node to s, unescaped."
+  [s]
   (fn [node] (assoc node :content [s])))
 
 (defn attr
