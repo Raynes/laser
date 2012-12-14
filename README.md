@@ -1,5 +1,7 @@
 # laser
 
+NOTE: API documentation is forthcoming as soon as I get codox to function.
+
 Laser is an HTML transformation library. I wouldn't call it a templating
 library, but that's the purpose it'll likely be used for the most and it is well
 suited to the task.
