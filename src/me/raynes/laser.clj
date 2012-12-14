@@ -36,11 +36,11 @@
 (defn escape-html
   "Change special characters into HTML character entities."
   [text]
-  (.. ^String (as-str text)
-    (replace "&"  "&amp;")
-    (replace "<"  "&lt;")
-    (replace ">"  "&gt;")
-    (replace "\"" "&quot;")))
+  (.. ^String text
+    (string/replace "&"  "&amp;")
+    (string/replace "<"  "&lt;")
+    (string/replace ">"  "&gt;")
+    (string/replace "\"" "&quot;")))
 
 (defn to-html
   "Convert a hickory zip back to html."
