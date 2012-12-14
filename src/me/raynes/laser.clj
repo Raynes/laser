@@ -45,9 +45,9 @@
 (defn to-html
   "Convert a hickory zip back to html."
   [z] 
-  (-> (if (map? z)
-        z
-        (zip/root z))
+  (-> (if (sequential? z)
+        (zip/root z)
+        z)
       hickory/hickory-to-html))
 
 (defn fragment-to-html
