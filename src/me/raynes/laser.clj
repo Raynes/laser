@@ -98,8 +98,13 @@
         (contains? attr))))
 
 (defn class=
-  "A selector that matches the node's class."
-  [class] (attr= :class class))
+  "A selector that matches if the node has these classes."
+  [& classes]
+  (fn [loc]
+    (let [node (zip/node loc)]
+      (every? (set classes)
+              (string/split
+               (get-in node [:attrs :class] "") #" ")))))
 
 (defn id=
   "A selector that matches the node's id."
