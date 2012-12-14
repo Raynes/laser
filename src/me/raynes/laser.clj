@@ -5,9 +5,12 @@
             [me.raynes.laser.zip :as lzip]
             [clojure.string :as string]))
 
-(defn parse-html
-  "If s is a string, parse the document from the string. Otherwise,
-   assume it is a reader and read from it."
+(defn parse
+  "Parses an HTML document. This is for top-level full documents,
+   complete with <body>, <head>, and <html> tags. If they are not
+   present, they will be added to the final result. s can be a string
+   in which case it will be treated as a string of HTML or it can be
+   something that can be slurped (reader, file, etc)."
   [s]
   (-> (if (string? s)
         s
@@ -17,24 +20,59 @@
       (hickory-zip)
       (lzip/leftmost-descendant)))
 
-(defn zip-to-html
-  "Convert a hickory zip back to html."
-  [z]
-  (-> z zip/root hickory/hickory-to-html))
+(defn parse-fragment
+  "Parses an HTML fragment. s can be a string in which case it will be treated
+   as a string of HTML or it can be something than can be slurped (reader, file,
+   etc)."
+  [s]
+  (map (comp lzip/leftmost-descendant
+             hickory-zip
+             hickory/as-hickory)
+       (hickory/parse-fragment
+        (if (string? s)
+          s
+          (slurp s)))))
 
-(defn apply-selector [loc [selector transform]]
+(defn escape-html
+  "Change special characters into HTML character entities."
+  [text]
+  (.. ^String (as-str text)
+    (replace "&"  "&amp;")
+    (replace "<"  "&lt;")
+    (replace ">"  "&gt;")
+    (replace "\"" "&quot;")))
+
+(defn to-html
+  "Convert a hickory zip back to html."
+  [z] 
+  (-> (if (map? z)
+        z
+        (zip/root z))
+      hickory/hickory-to-html))
+
+(defn fragment-to-html
+  "Takes a parsed fragment and converts it back to HTML."
+  [z]
+  (string/join (map to-html z)))
+
+(defn ^:private apply-selector
+  "If the selector matches, run transformation on the loc."
+  [loc [selector transform]]
   (if (selector loc)
     (zip/edit loc transform)
     loc))
 
-(defn traverse-zip [selectors zip]
+(defn ^:private traverse-zip
+  "Iterate through an HTML zipper, running selectors and relevant transformations
+   on each node."
+  [selectors zip]
   (loop [loc zip]
-    (let [new-loc (reduce apply-selector loc selectors)]
-      (if (zip/end? new-loc)
-        new-loc
+    (if (zip/end? loc)
+      loc
+      (let [new-loc (reduce apply-selector loc selectors)]      
         (recur (lzip/next new-loc))))))
 
-(defn safe-iterate
+(defn ^:private safe-iterate
   "Just like iterate, but stops at the first nil value."
   [f x] (take-while identity (iterate f x)))
 
@@ -50,6 +88,15 @@
   [attr value]
   (fn [loc] (= value (get-in (zip/node loc) [:attrs attr]))))
 
+(defn attr?
+  "A selector that matches any element that has the attribute,
+   regardless of value."
+  [attr]
+  (fn [loc]
+    (-> (zip/node loc)
+        (:attr)
+        (contains? attr))))
+
 (defn class=
   "A selector that matches the node's class."
   [class] (attr= :class class))
@@ -59,6 +106,11 @@
   [id] (attr= :id id))
 
 ;; Selector combinators
+
+(defn negate
+  "Negates a selector. Like clojure.core/not."
+  [selector]
+  (fn [loc] (not (selector loc))))
 
 (defn select-and
   "Like and, but for selectors. Returns true iff all selectors match."
@@ -134,9 +186,34 @@
     (update-in node [:attrs :class]
                #(string/join " " (remove #{class} (string/split % #" "))))))
 
-(defn transform
-  "Transform an HTML string."
+(defn document
+  "Transform an HTML document. Use this for any top-level transformation.
+   It expects a full HTML document (complete with <html> and <head>) and
+   makes it one if it doesn't get one. Takes HTML parsed by the parse-html
+   function."
+  [s & fns]
+  (to-html (traverse-zip (partition 2 fns) s)))
+
+(defn fragment
+  "Transform an HTML fragment. Use document for transforming full HTML
+   documents. This function does not return HTML, but instead instead
+   returns a sequence of zippers of the transformed HTML. This is to make
+   composing fragments faster. You can call to-html on the output to get
+   HTML."
   [s & fns]
   (let [pairs (partition 2 fns)]
-    (zip-to-html
-     (traverse-zip pairs (parse-html s)))))
+    (map #(zip/root (traverse-zip pairs %)) s)))
+
+(defmacro defragment
+  "Define a function that transforms a fragment of HTML."
+  [name s args & transformations]
+  `(let [html# (parse-fragment ~s)]
+     (defn ~name ~args
+       (fragment html# ~@transformations))))
+
+(defmacro defdocument
+  "Define a function that transforms an HTML document."
+  [name s args & transformations]
+  `(let [html# (parse ~s)]
+     (defn ~name ~args
+       (document html# ~@transformations))))
