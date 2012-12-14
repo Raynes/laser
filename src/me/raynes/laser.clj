@@ -105,6 +105,10 @@
   "A selector that matches the node's id."
   [id] (attr= :id id))
 
+(defn any
+  "A selector that matches any node."
+  [] (constantly true))
+
 ;; Selector combinators
 
 (defn negate
