@@ -160,7 +160,7 @@
 (defn html-content
   "Set content of node to s, unescaped."
   [s]
-  (fn [node] (assoc node :content [s])))
+  (fn [node] (assoc node :content (if (sequential? s) s [s]))))
 
 (defn attr
   "Set attribute attr to value."
