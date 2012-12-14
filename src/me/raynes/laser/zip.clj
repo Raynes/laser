@@ -16,7 +16,7 @@
   "Moves to the next loc in the hierarchy in postorder traversal. Behaves like
    clojure.zip/next otherwise. Note that unlike with a pre-order walk, the root
    is NOT the first element in the walk order, so be sure to take that into
-   account in your algorithm if it matters (ie, call postorder-first first
+   account in your algorithm if it matters (ie, call csleftmost-descendant first
    thing before processing a node)."
   [loc]
   (if (= :end (loc 1)) ;; If it's the end, return the end.
