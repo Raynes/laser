@@ -59,9 +59,6 @@
 (defn edit [l f & args]
   (let [result (apply f (zip/node l) args)]
     (if (sequential? result)
-      ;; It would make more sense to replace with nil for removal,
-      ;; but hickory doesn't want to accept nil nodes, and throws an
-      ;; error instead of just ignoring them. *shrug*
       (zip/replace (reduce #(zip/insert-left % %2) l result) "")
       (zip/replace l result))))
 
