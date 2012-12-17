@@ -55,11 +55,20 @@
   [z]
   (string/join (map to-html z)))
 
+(defn edit [l f & args]
+  (let [result (apply f (zip/node l) args)]
+    (if (sequential? result)
+      ;; It would make more sense to replace with nil for removal,
+      ;; but hickory doesn't want to accept nil nodes, and throws an
+      ;; error instead of just ignoring them. *shrug*
+      (zip/replace (reduce #(zip/insert-left % %2) l result) "")
+      (zip/replace l result))))
+
 (defn ^:private apply-selector
   "If the selector matches, run transformation on the loc."
   [loc [selector transform]]
   (if (and (selector loc) (map? (zip/node loc)))
-    (zip/edit loc transform)
+    (edit loc transform)
     loc))
 
 (defn ^:private traverse-zip
@@ -69,7 +78,7 @@
   (loop [loc zip]
     (if (zip/end? loc)
       loc
-      (let [new-loc (reduce apply-selector loc selectors)]      
+      (let [new-loc (reduce apply-selector loc selectors)]   
         (recur (lzip/next new-loc))))))
 
 (defn ^:private safe-iterate
