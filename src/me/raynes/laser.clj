@@ -137,7 +137,7 @@
   "Like or, but for selectors. Returns true iff at least one selector matches.
    Like 'foo,bar' in css."
   [& selectors]
-  (fn [loc] (some (comp not identity) (map #(% loc) selectors))))
+  (fn [loc] (boolean (some identity (map #(% loc) selectors)))))
 
 (defn descendant-of
   "A selector that matches iff child selector matches, and
