@@ -56,7 +56,7 @@
   [z]
   (string/join (map to-html z)))
 
-(defn edit [l f & args]
+(defn ^:private edit [l f & args]
   (let [result (apply f (zip/node l) args)]
     (if (sequential? result)
       (zip/replace (reduce #(zip/insert-left % %2) l result) "")
@@ -101,7 +101,7 @@
   [attr]
   (fn [loc]
     (-> (zip/node loc)
-        (:attr)
+        (:attrs)
         (contains? attr))))
 
 (defn class=
