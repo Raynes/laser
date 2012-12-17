@@ -230,8 +230,8 @@
 
 (defn fragment
   "Transform an HTML fragment. Use document for transforming full HTML
-   documents. This function does not return HTML, but instead instead
-   returns a sequence of zippers of the transformed HTML. This is to make
+   documents. This function does not return HTML, but instead returns a
+   sequence of zippers of the transformed HTML. This is to make
    composing fragments faster. You can call to-html on the output to get
    HTML."
   [s & fns]
