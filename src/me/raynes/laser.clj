@@ -1,4 +1,5 @@
 (ns me.raynes.laser
+  (:refer-clojure :exclude [remove])
   (:require [hickory.core :as hickory]
             [hickory.zip :refer [hickory-zip]]
             [clojure.zip :as zip]
@@ -207,13 +208,17 @@
   [class]
   (fn [node]
     (update-in node [:attrs :class]
-               #(string/join " " (remove #{class} (string/split % #" "))))))
+               #(string/join " " (clojure.core/remove #{class} (string/split % #" "))))))
 
 (defn wrap
   "Wrap a node around the node. Provide the element name as a key (like :div)
    and optionally a map of attributes."
   [tag & [attrs]]
   (fn [node] {:type :element :tag tag :attrs attrs :content [node]}))
+
+(defn remove
+  "Delete a node."
+  [] (constantly ""))
 
 (defn document
   "Transform an HTML document. Use this for any top-level transformation.
