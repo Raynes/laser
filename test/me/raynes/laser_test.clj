@@ -1,4 +1,4 @@
-(ns laser.core-test
+(ns me.raynes.laser-test
   (:require [clojure.test :refer :all]
             [me.raynes.laser :as l]
             [clojure.zip :as zip]
