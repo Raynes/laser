@@ -1,6 +1,6 @@
 # laser
 
-NOTE: API documentation is forthcoming as soon as I get codox to function.
+[API reference](http://raynes.github.com/laser/)
 
 Laser is an HTML transformation library. I wouldn't call it a templating
 library, but that's the purpose it'll likely be used for the most and it is well
@@ -170,7 +170,7 @@ user> (laser/document (laser/parse html) (laser/child-of (laser/element= :div) (
 "<html><head></head><body><p>foo</p><p id=\"hi\">bar</p><div><p class=\"meow\">omg</p></div></body></html>"
 ```
 
-There are a bunch of combinators. Take a look at the API documentation or code
+There are a bunch of combinators. Take a look at the [API reference](http://raynes.github.com/laser/) or code
 for a full list.
 
 ### Selectors and transformers.
