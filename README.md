@@ -301,6 +301,13 @@ important thing is using what you like the most.
 Biggest TODO at the moment is a function for turning a string representing a CSS
 selector into a selector function you can use (by combining existing selectors).
 
+## Credits
+
+* Anthony Grimes - The author.
+* David Santiago - Huge part of laser relies on his library Hickory for HTML
+  stuff.
+* Andrew Brehaut - Uses Enlive, likes laser, gave me ideas.
+
 ## License
 
 Copyright © 2012 Anthony Grimes
