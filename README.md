@@ -163,7 +163,12 @@ templates before you see the changes.
 Our examples are fun, but they don't do anything terribly interesting. Laser has
 a bunch of combinators to do interesting and complicated things with
 selectors. Here is one example. What if we wanted to only match `p` tags inside
-of a `div`? Easy:
+of a `div` and then generate a bunch of new p tags?
+
+```clojure
+user> (laser/fragment-to-html (laser/fragment html (laser/child-of (laser/element= :div) (laser/element= :p)) (fn [node] (for [x (range 10)] (assoc node :content [(str x)])))))
+"<div><p>0</p><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p></div>"
+```
 
 ```clojure
 user> (laser/document (laser/parse html) (laser/child-of (laser/element= :div) (laser/element= :p)) (laser/content "omg"))
@@ -175,9 +180,9 @@ for a full list.
 
 ### Selectors and transformers.
 
-Selectors and transformers are both just functions. All the ones we've are just
-functions that return functions. Let's take a look at how the `element=`
-selector is defined.
+Selectors and transformers are both just functions. All the ones we've shown are just
+functions that return functions that take nodes and return a node or a seq of
+nodes. Let's take a look at how the `element=` selector is defined.
 
 ```clojure
 (defn element=
@@ -213,6 +218,27 @@ enough, right?
 
 You can write your own selectors and transformers, but if you write any that you
 use often or think are generally useful, throw 'em at me in a pull request.
+
+### Advanced Transforming
+
+You can do some pretty fancy things with transformers. Our examples are fun, but
+they don't do anything terribly interesting. Laser has
+a bunch of combinators to do interesting and complicated things with
+selectors. Here is one example. What if we wanted to only match `p` tags inside
+of a `div` and then generate a bunch of new p tags there?
+
+```clojure
+user> (laser/fragment-to-html
+        (laser/fragment
+          html
+          (laser/child-of (laser/element= :div)
+                          (laser/element= :p)) (fn [node]
+                                                 (for [x (range 10)]
+                                                   (assoc node :content [(str x)])))))
+"<div><p>0</p><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p></div>"
+```
+
+Nice, huh?
 
 ## Performance
 
