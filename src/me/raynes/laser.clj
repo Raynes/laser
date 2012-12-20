@@ -21,18 +21,23 @@
       (hickory-zip)
       (lzip/leftmost-descendant)))
 
+(defn parse-fragment*
+  "Like parse-fragment, but don't get a zipper over it."
+  [s]
+  (map hickory/as-hickory
+       (hickory/parse-fragment
+        (if (string? s)
+          s
+          (slurp s)))))
+
 (defn parse-fragment
   "Parses an HTML fragment. s can be a string in which case it will be treated
    as a string of HTML or it can be something than can be slurped (reader, file,
    etc)."
   [s]
   (map (comp lzip/leftmost-descendant
-             hickory-zip
-             hickory/as-hickory)
-       (hickory/parse-fragment
-        (if (string? s)
-          s
-          (slurp s)))))
+             hickory-zip)
+       (parse-fragment* s)))
 
 (defn escape-html
   "Change special characters into HTML character entities."
@@ -176,7 +181,11 @@
 (defn html-content
   "Set content of node to s, unescaped."
   [s]
-  (fn [node] (assoc node :content (if (sequential? s) s [s]))))
+  (fn [node] (assoc node
+               :content (cond
+                         (string? s) (parse-fragment* s)
+                         (sequential? s) s
+                         :else [s]))))
 
 (defn attr
   "Set attribute attr to value."
