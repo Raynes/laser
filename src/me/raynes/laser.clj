@@ -179,7 +179,8 @@
   (fn [node] (assoc node :content [(escape-html s)])))
 
 (defn html-content
-  "Set content of node to s, unescaped."
+  "Set content of node to s, unescaped. Can take a string of HTML or
+   already parsed node(s)."
   [s]
   (fn [node] (assoc node
                :content (cond
