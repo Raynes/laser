@@ -104,3 +104,33 @@
 
 (deftest remove-test
   (is (= "" ((l/remove) node))))
+
+;; Fragments and Documents
+
+(defn element [tag]
+  {:type :element
+   :attrs nil
+   :tag tag
+   :content nil})
+
+(deftest parse-fragment-test
+  (is (= '([{:type :element, :attrs nil, :tag :a, :content nil} nil]
+             [{:type :element, :attrs nil, :tag :a, :content nil} nil])
+         (l/parse-fragment "<a></a><a></a>"))))
+
+(deftest fragment-test
+  (is (= (repeat 2 (element :a))
+         (l/fragment (l/parse-fragment "<a></a><a></a>")
+                     (l/element= :a) (fn [node] node))))
+  (testing "top-level added nodes are handled"
+    (= [(element :a) (element :span)
+        (element :a) (element :span)]
+       (l/fragment
+        (l/parse-fragment "<a></a><a></a>")
+        (l/element= :a) (fn [node] [(element :span) node])))))
+
+(deftest document-test
+  (is (= "<html><head></head><body><a>hi</a></body></html>"
+         (l/document
+          (l/parse "<a></a>")
+          (l/element= :a) (l/content "hi")))))
