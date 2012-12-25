@@ -64,10 +64,11 @@
 (defn ^:private edit [l f & args]
   (let [result (apply f (zip/node l) args)]
     (if (sequential? result)
-      (if (zip/up l)
-        (zip/replace (reduce #(zip/insert-left % %2) l result) "")
-        {:top-left result})
-      (zip/replace l result))))
+      (let [result (for [node result] (or node ""))]
+        (if (zip/up l)
+          (zip/replace (reduce #(zip/insert-left % %2) l result) "")
+          {:top-left result}))
+      (zip/replace l (or result "")))))
 
 (defn ^:private apply-selector
   "If the selector matches, run transformation on the loc."

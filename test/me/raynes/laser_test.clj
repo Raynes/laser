@@ -132,6 +132,11 @@
         (l/parse-fragment "<a></a><a></a>")
         (l/element= :a) (fn [node] [(element :span) node])))))
 
+(deftest nil-remove-test
+  (is (= "" (l/fragment-to-html
+             (l/fragment (l/parse-fragment "<a></a>")
+                         (l/any) (constantly nil))))))
+
 (deftest document-test
   (is (= "<html><head></head><body><a>hi</a></body></html>"
          (l/document
