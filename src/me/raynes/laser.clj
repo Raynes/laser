@@ -191,13 +191,14 @@
 ;; Transformers
 
 (defn content
-  "Set content of node to s."
+  "Set content of node to the string s. It will be escaped automatically
+   by hickory when converting back to html."
   [s]
-  (fn [node] (assoc node :content [(escape-html s)])))
+  (fn [node] (assoc node :content [s])))
 
 (defn html-content
   "Set content of node to s, unescaped. Can take a string of HTML or
-   already parsed node(s)."
+   already parsed nodes."
   [s]
   (fn [node] (assoc node :content (nodes s))))
 
