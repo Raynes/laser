@@ -64,7 +64,9 @@
 (defn ^:private edit [l f & args]
   (let [result (apply f (zip/node l) args)]
     (if (sequential? result)
-      (zip/replace (reduce #(zip/insert-left % %2) l result) "")
+      (if (zip/up l)
+        (zip/replace (reduce #(zip/insert-left % %2) l result) "")
+        {:top-left result})
       (zip/replace l result))))
 
 (defn ^:private apply-selector
@@ -79,14 +81,29 @@
    on each node."
   [selectors zip]
   (loop [loc zip]
-    (if (zip/end? loc)
-      loc
-      (let [new-loc (reduce apply-selector loc selectors)]   
-        (recur (lzip/next new-loc))))))
+    (cond
+     (map? loc) (:top-left loc)
+     (zip/end? loc) (zip/root loc)
+     :else (let [new-loc (reduce apply-selector loc selectors)]   
+             (recur (if (map? new-loc)
+                      new-loc
+                      (lzip/next new-loc)))))))
 
 (defn ^:private safe-iterate
   "Just like iterate, but stops at the first nil value."
   [f x] (take-while identity (iterate f x)))
+
+(defn nodes
+  "Normalizes nodes. If s is a string, parse it as a fragment and get
+   a sequence of nodes. If s is sequential already, return it assuming
+   it is already a seq of nodes. If it is anything else, wrap it in a
+   vector (for example, if it is a map, this will make it a vector of
+   maps (nodes)"
+  [s]
+  (cond
+   (string? s) (parse-fragment* s)
+   (sequential? s) s
+   :else [s]))
 
 ;; Selectors
 
@@ -182,11 +199,7 @@
   "Set content of node to s, unescaped. Can take a string of HTML or
    already parsed node(s)."
   [s]
-  (fn [node] (assoc node
-               :content (cond
-                         (string? s) (parse-fragment* s)
-                         (sequential? s) s
-                         :else [s]))))
+  (fn [node] (assoc node :content (nodes s))))
 
 (defn attr
   "Set attribute attr to value."
@@ -243,7 +256,11 @@
    HTML."
   [s & fns]
   (let [pairs (partition 2 fns)]
-    (map #(zip/root (traverse-zip pairs %)) s)))
+    (reduce #(if (sequential? %2)
+               (into % %2)
+               (conj % %2))
+            []
+            (map (partial traverse-zip pairs) s))))
 
 (defmacro defragment
   "Define a function that transforms a fragment of HTML."
