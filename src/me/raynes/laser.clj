@@ -50,7 +50,7 @@
 
 (defn to-html
   "Convert a hickory zip back to html."
-  [z] 
+  [z]
   (-> (if (sequential? z)
         (zip/root z)
         z)
