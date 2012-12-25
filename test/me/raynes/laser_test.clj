@@ -106,7 +106,7 @@
          ((l/wrap :div {:class "hi"}) node))))
 
 (deftest remove-test
-  (is (= "" ((l/remove) node))))
+  (is (= nil ((l/remove) node))))
 
 ;; Fragments and Documents
 
