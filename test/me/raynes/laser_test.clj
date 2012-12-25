@@ -14,9 +14,9 @@
               hzip/hickory-zip))
 
 (def node {:type :element
-           :class nil
+           :tag :a
            :attrs nil
-           :content []})
+           :content nil})
 
 (deftest element=-test
   (is (true? ((l/element= :div) html)))
@@ -76,10 +76,13 @@
 ;; Transformers
 
 (deftest content-test
-  (is (= (assoc node :content ["hi"]) ((l/content "hi") node))))
+  (is (= (assoc node :content ["hi"]) ((l/content "hi") node)))
+  (testing "Gets escaped in the end."
+    (is (= "<a>h&amp;i</a>"
+           (hickory/hickory-to-html ((l/content "h&i") node))))))
 
 (deftest html-content-test
-  (is (= (assoc node :content ["h&amp;i"]) ((l/content "h&i") node))))
+  (is (= (assoc node :content [node]) ((l/html-content "<a></a>") node))))
 
 (deftest attr-test
   (is (= (assoc node :attrs {:class "a"}) ((l/attr :class "a") node))))
