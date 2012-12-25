@@ -240,7 +240,7 @@
 
 (defn remove
   "Delete a node."
-  [] (constantly ""))
+  [] (constantly nil))
 
 (defn document
   "Transform an HTML document. Use this for any top-level transformation.
