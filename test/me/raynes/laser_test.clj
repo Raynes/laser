@@ -126,11 +126,11 @@
          (l/fragment (l/parse-fragment "<a></a><a></a>")
                      (l/element= :a) (fn [node] node))))
   (testing "top-level added nodes are handled"
-    (= [(element :a) (element :span)
-        (element :a) (element :span)]
-       (l/fragment
-        (l/parse-fragment "<a></a><a></a>")
-        (l/element= :a) (fn [node] [(element :span) node])))))
+    (is (= [(element :span) (element :a)
+            (element :span) (element :a)]
+           (l/fragment
+            (l/parse-fragment "<a></a><a></a>")
+            (l/element= :a) (fn [node] [(element :span) node]))))))
 
 (deftest nil-remove-test
   (is (= "" (l/fragment-to-html
