@@ -266,14 +266,20 @@
 
 (defmacro defragment
   "Define a function that transforms a fragment of HTML."
-  [name s args & transformations]
+  [name s args bindings & transformations]
   `(let [html# (parse-fragment ~s)]
      (defn ~name ~args
-       (fragment html# ~@transformations))))
+       (let ~(if (vector? bindings) bindings [])
+         (fragment html# ~@(if (vector? bindings)
+                             transformations
+                             (cons bindings transformations)))))))
 
 (defmacro defdocument
   "Define a function that transforms an HTML document."
-  [name s args & transformations]
+  [name s args bindings & transformations]
   `(let [html# (parse ~s)]
      (defn ~name ~args
-       (document html# ~@transformations))))
+       (let ~(if (vector? bindings) bindings [])
+         (document html# ~@(if (vector? bindings)
+                             transformations
+                             (cons bindings transformations)))))))
