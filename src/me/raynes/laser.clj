@@ -67,7 +67,7 @@
       (let [result (for [node result] (or node ""))]
         (if (zip/up l)
           (zip/replace (reduce #(zip/insert-left % %2) l result) "")
-          {:top-left result}))
+          (with-meta result {:merge-left true})))
       (zip/replace l (or result "")))))
 
 (defn ^:private apply-selector
@@ -83,10 +83,10 @@
   [selectors zip]
   (loop [loc zip]
     (cond
-     (map? loc) (:top-left loc)
+     (:merge-left (meta loc)) loc
      (zip/end? loc) (zip/root loc)
      :else (let [new-loc (reduce apply-selector loc selectors)]   
-             (recur (if (map? new-loc)
+             (recur (if (:merge-left (meta new-loc))
                       new-loc
                       (lzip/next new-loc)))))))
 
