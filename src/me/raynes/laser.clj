@@ -265,7 +265,13 @@
             (map (partial traverse-zip pairs) s))))
 
 (defmacro defragment
-  "Define a function that transforms a fragment of HTML."
+  "Define a function that transforms a fragment of HTML. The first
+   argument should be the name of the function, the second argument
+   is the string of HTML or readable thing (such as a resource from
+   clojure.java.io/resource or a file), third argument are arguments
+   the function can take, and an optional forth argument should be a
+   vector of bindings to give to let that will be visible to the body.
+   The rest of the arguments are selector and transformer pairs."
   [name s args bindings & transformations]
   `(let [html# (parse-fragment ~s)]
      (defn ~name ~args
@@ -275,7 +281,13 @@
                              (cons bindings transformations)))))))
 
 (defmacro defdocument
-  "Define a function that transforms an HTML document."
+  "Define a function that transforms an HTML document. The first
+   argument should be the name of the function, the second argument
+   is the string of HTML or readable thing (such as a resource from
+   clojure.java.io/resource or a file), third argument are arguments
+   the function can take, and an optional forth argument should be a
+   vector of bindings to give to let that will be visible to the body.
+   The rest of the arguments are selector and transformer pairs."
   [name s args bindings & transformations]
   `(let [html# (parse ~s)]
      (defn ~name ~args
