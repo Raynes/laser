@@ -1,5 +1,7 @@
 # laser
 
+[![Build Status](https://secure.travis-ci.org/Raynes/laser.png)](http://travis-ci.org/Raynes/laser)
+
 [API reference](http://raynes.github.com/laser/)
 
 Laser is an HTML transformation library. I wouldn't call it a templating
