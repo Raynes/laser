@@ -298,6 +298,18 @@ don't really know how they measure up with large templates and complex
 selecting/transforming. I think they are all close enough that the most
 important thing is using what you like the most.
 
+## Screen Scraping
+
+You can also use laser for screen scraping. It has a `select` function
+specifically for this purpose:
+
+```clojure
+me.raynes.laser=> (select (parse "<div><a id=\"hi\">hi</a></div>") (id= "hi"))
+({:type :element, :attrs {:id "hi"}, :tag :a, :content ["hi"]})
+me.raynes.laser=> (select (parse "<div><a id=\"hi\">hi</a><a>bye</a></div>") (element= :a))
+({:type :element, :attrs {:id "hi"}, :tag :a, :content ["hi"]} {:type :element, :attrs nil, :tag :a, :content ["bye"]})
+```
+
 ## TODO
 
 Biggest TODO at the moment is a function for turning a string representing a CSS
