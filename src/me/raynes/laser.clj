@@ -39,15 +39,6 @@
              hickory-zip)
        (parse-fragment* s)))
 
-(defn escape-html
-  "Change special characters into HTML character entities."
-  [text]
-  (.. ^String text
-    (string/replace "&"  "&amp;")
-    (string/replace "<"  "&lt;")
-    (string/replace ">"  "&gt;")
-    (string/replace "\"" "&quot;")))
-
 (defn to-html
   "Convert a hickory zip back to html."
   [z]
