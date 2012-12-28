@@ -107,7 +107,8 @@
 (defn attr=
   "A selector that checks to see if attr exists and has the value."
   [attr value]
-  (fn [loc] (= value (get-in (zip/node loc) [:attrs attr]))))
+  (fn [loc]
+    (spit "foo" (pr-str loc)) (= value (get-in (zip/node loc) [:attrs attr]))))
 
 (defn attr?
   "A selector that matches any element that has the attribute,
@@ -232,6 +233,20 @@
 (defn remove
   "Delete a node."
   [] (constantly nil))
+
+;; High level
+
+(defn ^:private zip-seq
+  "Get a seq of all of the nodes in a zipper."
+  [zip]
+  (take-while (comp not zip/end?) (iterate lzip/next zip)))
+
+(defn select
+  "Select nodes that match one of the selectors."
+  [zip & selectors]
+  (for [loc (zip-seq zip)
+        :when ((apply some-fn selectors) loc)]
+    (zip/node loc)))
 
 (defn document
   "Transform an HTML document. Use this for any top-level transformation.
