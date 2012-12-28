@@ -263,41 +263,41 @@ Enlive. Here are my results:
 
 ```
 hiccup
-"Elapsed time: 86.974 msecs"
-"Elapsed time: 77.422 msecs"
-"Elapsed time: 84.522 msecs"
+"Elapsed time: 83.798 msecs"
+"Elapsed time: 81.829 msecs"
+"Elapsed time: 76.239 msecs"
 hiccup (type-hint)
-"Elapsed time: 36.095 msecs"
-"Elapsed time: 45.961 msecs"
-"Elapsed time: 42.489 msecs"
+"Elapsed time: 41.598 msecs"
+"Elapsed time: 49.07 msecs"
+"Elapsed time: 42.82 msecs"
 str
-"Elapsed time: 3.627 msecs"
-"Elapsed time: 2.099 msecs"
-"Elapsed time: 1.967 msecs"
+"Elapsed time: 3.67 msecs"
+"Elapsed time: 5.047 msecs"
+"Elapsed time: 1.758 msecs"
 enlive
-"Elapsed time: 47.944 msecs"
-"Elapsed time: 36.506 msecs"
-"Elapsed time: 36.081 msecs"
+"Elapsed time: 38.299 msecs"
+"Elapsed time: 32.392 msecs"
+"Elapsed time: 44.309 msecs"
 enlive with snippet
-"Elapsed time: 72.872 msecs"
-"Elapsed time: 62.419 msecs"
-"Elapsed time: 69.803 msecs"
+"Elapsed time: 60.58 msecs"
+"Elapsed time: 60.818 msecs"
+"Elapsed time: 61.979 msecs"
 tinsel
-"Elapsed time: 81.255 msecs"
-"Elapsed time: 84.682 msecs"
-"Elapsed time: 69.489 msecs"
+"Elapsed time: 93.713 msecs"
+"Elapsed time: 74.937 msecs"
+"Elapsed time: 71.162 msecs"
 tinsel (type-hint)
-"Elapsed time: 38.558 msecs"
-"Elapsed time: 57.279 msecs"
-"Elapsed time: 41.377 msecs"
+"Elapsed time: 37.678 msecs"
+"Elapsed time: 53.926 msecs"
+"Elapsed time: 65.653 msecs"
 laser
-"Elapsed time: 28.211 msecs"
-"Elapsed time: 28.341 msecs"
-"Elapsed time: 23.837 msecs"
+"Elapsed time: 31.927 msecs"
+"Elapsed time: 47.053 msecs"
+"Elapsed time: 36.223 msecs"
 laser (type-hint)
-"Elapsed time: 28.592 msecs"
-"Elapsed time: 26.309 msecs"
-"Elapsed time: 26.148 msecs"
+"Elapsed time: 31.963 msecs"
+"Elapsed time: 48.66 msecs"
+"Elapsed time: 27.386 msecs"
 ```
 
 My benchmarks used `defdocument`.
