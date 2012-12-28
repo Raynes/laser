@@ -221,7 +221,7 @@ enough, right?
 You can write your own selectors and transformers, but if you write any that you
 use often or think are generally useful, throw 'em at me in a pull request.
 
-## Screen Scraping
+### Screen Scraping
 
 You can also use laser for screen scraping. It has a `select` function
 specifically for this purpose:
