@@ -58,10 +58,13 @@
   (is (false? ((l/select-or (l/element= :pre) (l/attr? :foo)) html))))
 
 (deftest descendant-of-test
-  (is (true? ((l/descendant-of (l/element= :div) (l/element= :a))
-              (zip/next (zip/next html)))))
-  (is (false? ((l/descendant-of (l/element= :div) (l/element= :pre))
-               (zip/next (zip/next html))))))
+  (let [html (-> html zip/next zip/next)]
+    (is (true? ((l/descendant-of (l/element= :div) (l/element= :a))
+                html)))
+    (is (false? ((l/descendant-of (l/element= :div) (l/element= :pre))
+                 html)))
+    (is (true? ((l/descendant-of (l/element= :div) (l/element= :p) (l/element= :a))
+                html)))))
 
 (deftest child-of-test
   (is (true? ((l/child-of (l/element= :div) (l/element= :p)) (zip/next html))))

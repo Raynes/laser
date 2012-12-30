@@ -186,10 +186,36 @@
   "A selector that matches iff child selector matches, and
    parent-selector matches for some parent node. Like
    'foo bar' in css."
-  [parent-selector child-selector]
-  (fn [loc]
-    (and (child-selector loc)
-         (some parent-selector (safe-iterate zip/up loc)))))
+  [parent-selector child-selector])
+
+(defn descendant-of
+  "A selector that takes a number of selectors and matches them as follows:
+   If the last selector matches, check to make sure some parent node matches
+   the selector before it. If that one matches a node, make sure that the
+   selector before it also matches a parent node. In simple terms, it makes
+   sure that each selector matches a node that is a descendant of a node that
+   the selector before it matches. For example:
+
+   (descendant-of (element= :c) (element= :b) (element= :a))
+
+   matches the 'a' tag in the following HTML:
+
+   <c>
+    <b>
+     <a></a>
+    </b>
+   </c>
+
+   With two arguments, it is the equivalent of the CSS 'foo bar', where bar
+   is matched only if it is a descendant of foo. By taking arbitrary arguments,
+   it is more flexible."
+  ([selector] selector)
+  ([parent-selector child-selector]
+     (fn [loc]
+       (and (child-selector loc)
+            (some parent-selector (safe-iterate zip/up loc)))))
+  ([parent-selector child-selector & more]
+     (descendant-of parent-selector (apply descendant-of child-selector more))))
 
 (defn ajacent-to
   "A selector that matches iff target selector matches AND
