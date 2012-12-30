@@ -184,12 +184,6 @@
   (fn [loc] (boolean (some identity (map #(% loc) selectors)))))
 
 (defn descendant-of
-  "A selector that matches iff child selector matches, and
-   parent-selector matches for some parent node. Like
-   'foo bar' in css."
-  [parent-selector child-selector])
-
-(defn descendant-of
   "A selector that takes a number of selectors and matches them as follows:
    If the last selector matches, check to make sure some parent node matches
    the selector before it. If that one matches a node, make sure that the
