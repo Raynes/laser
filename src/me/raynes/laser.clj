@@ -1,5 +1,5 @@
 (ns me.raynes.laser
-  (:refer-clojure :exclude [remove])
+  (:refer-clojure :exclude [remove replace])
   (:require [hickory.core :as hickory]
             [hickory.zip :refer [hickory-zip]]
             [clojure.zip :as zip]
