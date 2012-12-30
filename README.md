@@ -22,8 +22,6 @@ Huge props to David Santiago for writing
 
 I wrote laser for a couple of reasons.
 
-* Enlive is HUGE! Over 900 lines! Laser is around 400 right now, and strives to
-  be heavily documented.
 * Enlive does its job, but it is extremely complex, has terrible
   documentation, and at this point in time seems to be hardly maintained at all.
 * Enlive currently uses tagsoup which is ew compared to jsoup.
