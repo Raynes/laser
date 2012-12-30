@@ -7,6 +7,21 @@
             [me.raynes.laser.zip :as lzip]
             [clojure.string :as string]))
 
+(defn zipper?
+  "Checks to see if the object has zip/make-node metadata on it (confirming it
+   to be a zipper."
+  [obj]
+  (contains? :zip/make-node obj))
+
+(defn zip
+  "Get a zipper suitable for passing to fragment, document, or select, from
+   hickory a hickory node/nodes."
+  [n]
+  (let [zipify (comp lzip/leftmost-descendant hickory-zip)]
+    (if (clj/and (sequential? n) (not (zipper? n)))
+      (map zipify n)
+      (zipify n))))
+
 (defn parse
   "Parses an HTML document. This is for top-level full documents,
    complete with <body>, <head>, and <html> tags. If they are not
@@ -19,8 +34,7 @@
         (slurp s))
       (hickory/parse)
       (hickory/as-hickory)
-      (hickory-zip)
-      (lzip/leftmost-descendant)))
+      (zip)))
 
 (defn parse-fragment*
   "Like parse-fragment, but don't get a zipper over it."
@@ -36,9 +50,7 @@
    as a string of HTML or it can be something than can be slurped (reader, file,
    etc)."
   [s]
-  (map (comp lzip/leftmost-descendant
-             hickory-zip)
-       (parse-fragment* s)))
+  (map zip (parse-fragment* s)))
 
 (defn to-html
   "Convert a hickory zip back to html."

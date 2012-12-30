@@ -175,3 +175,18 @@
           :content ["hi"]
           :attrs {:href "https://hi.com"}}
          (l/node :a :attrs {:href "https://hi.com"} :content "hi"))))
+
+(deftest zip-test
+  (let [parsed '([{:type :element, :attrs nil, :tag :a, :content nil}
+                  {:l [], :pnodes [{:type :element,
+                                    :attrs nil,
+                                    :tag :div,
+                                    :content [{:type :element,
+                                               :attrs nil,
+                                               :tag :a,
+                                               :content nil}]}],
+                   :ppath nil, :r nil}])]
+    (is (= parsed
+           (l/zip (l/parse-fragment* "<div><a></a></div>")))
+        (= (first parsed)
+           (l/zip (first (l/parse-fragment* "<div><a></a></div>")))))))
