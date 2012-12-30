@@ -211,7 +211,7 @@
   ([parent-selector child-selector & more]
      (descendant-of parent-selector (apply descendant-of child-selector more))))
 
-(defn ajacent-to
+(defn adjacent-to
   "A selector that matches iff target selector matches AND
    left selector matches the element immediately preceding it."
   [target left]

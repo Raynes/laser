@@ -70,10 +70,10 @@
   (is (true? ((l/child-of (l/element= :div) (l/element= :p)) (zip/next html))))
   (is (false? ((l/child-of (l/element= :div) (l/element= :a)) (zip/next (zip/next html))))))
 
-(deftest ajacent-to-test
-  (is (true? ((l/ajacent-to (l/element= :b) (l/element= :a))
+(deftest adjacent-to-test
+  (is (true? ((l/adjacent-to (l/element= :b) (l/element= :a))
               (-> html zip/next zip/next zip/next zip/next)))
-      (false? ((l/ajacent-to (l/element= :b) (l/element= :div))
+      (false? ((l/adjacent-to (l/element= :b) (l/element= :div))
                (-> html zip/next zip/next zip/next zip/next)))))
 
 ;; Transformers
