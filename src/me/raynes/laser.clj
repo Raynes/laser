@@ -213,15 +213,22 @@
     </b>
    </c>
 
-   With two arguments, it is the equivalent of the CSS 'foo bar', where bar
-   is matched only if it is a descendant of foo. By taking arbitrary arguments,
-   it is more flexible." 
-  ([parent-selector child-selector]
-     (fn [loc]
-       (clj/and (child-selector loc)
-            (some parent-selector (safe-iterate zip/up loc)))))
-  ([parent-selector child-selector & more]
-     (descendant-of parent-selector (apply descendant-of child-selector more))))
+   It is equivalent to 'c b a' in CSS." 
+  [& selectors]
+  (fn [loc]
+    (let [selector (last selectors)
+          selectors (butlast selectors)]
+      (if (selector loc)
+        (:result
+         (reduce (fn [{:keys [loc]} selector]
+                   (cond
+                    (nil? loc) {:result false, :loc nil}
+                    (selector loc) {:result true, :loc (zip/up loc)}
+                    :else (recur {:result false, :loc (zip/up loc)} selector)))
+                 {:result false
+                  :loc (zip/up loc)}
+                 (reverse selectors)))
+        false))))
 
 (defn adjacent-to
   "A selector that matches iff target selector matches AND
