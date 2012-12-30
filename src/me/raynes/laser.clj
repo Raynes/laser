@@ -208,8 +208,7 @@
 
    With two arguments, it is the equivalent of the CSS 'foo bar', where bar
    is matched only if it is a descendant of foo. By taking arbitrary arguments,
-   it is more flexible."
-  ([selector] selector)
+   it is more flexible." 
   ([parent-selector child-selector]
      (fn [loc]
        (and (child-selector loc)
