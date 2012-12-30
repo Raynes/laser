@@ -136,7 +136,7 @@
   "A selector that checks to see if attr exists and has the value."
   [attr value]
   (fn [loc]
-    (spit "foo" (pr-str loc)) (= value (get-in (zip/node loc) [:attrs attr]))))
+    (= value (get-in (zip/node loc) [:attrs attr]))))
 
 (defn attr?
   "A selector that matches any element that has the attribute,
