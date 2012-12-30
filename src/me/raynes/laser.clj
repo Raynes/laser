@@ -111,19 +111,6 @@
    :else [s]))
 
 (defn node
-  "Get a hickory node from a map or string. If a map is passed, merge it with
-   a set of sane defaults for a hickory node. The map passed should at least
-   contain the :tag key. If it is a string, parse it as a fragment and get the
-   first node."
-  [n]
-  (if (map? n)
-    (merge {:type :element
-            :content nil
-            :attrs nil}
-           n)
-    (first (nodes n))))
-
-(defn node
   "Create a hickory node. The most information you need to provide is the tag
    name. Optional keyword arguments allow you to provide the rest. If you don't,
    defaults will be provided. Keys that can be passed are :type, :content, and
