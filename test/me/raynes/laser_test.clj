@@ -163,5 +163,9 @@
           :tag :a
           :content nil
           :attrs nil}
-         (l/node {:tag :a})
-         (l/node "<a></a>"))))
+         (l/node :a)))
+  (is (= {:type :element
+          :tag :a
+          :content ["hi"]
+          :attrs {:href "https://hi.com"}}
+         (l/node :a :attrs {:href "https://hi.com"} :content "hi"))))

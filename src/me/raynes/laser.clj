@@ -110,6 +110,20 @@
            n)
     (first (nodes n))))
 
+(defn node
+  "Create a hickory node. The most information you need to provide is the tag
+   name. Optional keyword arguments allow you to provide the rest. If you don't,
+   defaults will be provided. Keys that can be passed are :type, :content, and
+   :attrs"
+  [tag & {:keys [type content attrs]
+          :or {type :element}}]
+  {:tag tag
+   :type type
+   :content (if (or (sequential? content) (nil? content))
+              content
+              [content])
+   :attrs attrs})
+
 ;; Selectors
 
 (defn element=
