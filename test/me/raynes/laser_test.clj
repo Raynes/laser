@@ -143,7 +143,6 @@
           (l/parse "<a></a>")
           (l/element= :a) (l/content "hi")))))
 
-
 ;; Screen scraping
 
 (deftest select-test
@@ -156,3 +155,13 @@
             :tag :div,
             :content [{:type :element, :attrs nil, :tag :div, :content ["hi"]}]})
          (l/select (l/parse "<div><div>hi</div></div>") (l/element= :div)))))
+
+;; Misc
+
+(deftest node-test
+  (is (= {:type :element
+          :tag :a
+          :content nil
+          :attrs nil}
+         (l/node {:tag :a})
+         (l/node "<a></a>"))))

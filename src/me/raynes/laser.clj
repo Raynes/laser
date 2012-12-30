@@ -97,6 +97,19 @@
    (sequential? s) s
    :else [s]))
 
+(defn node
+  "Get a hickory node from a map or string. If a map is passed, merge it with
+   a set of sane defaults for a hickory node. The map passed should at least
+   contain the :tag key. If it is a string, parse it as a fragment and get the
+   first node."
+  [n]
+  (if (map? n)
+    (merge {:type :element
+            :content nil
+            :attrs nil}
+           n)
+    (first (nodes n))))
+
 ;; Selectors
 
 (defn element=
