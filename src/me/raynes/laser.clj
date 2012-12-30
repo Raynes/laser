@@ -1,6 +1,7 @@
 (ns me.raynes.laser
-  (:refer-clojure :exclude [remove replace])
-  (:require [hickory.core :as hickory]
+  (:refer-clojure :exclude [remove replace and or])
+  (:require [clojure.core :as clj]
+            [hickory.core :as hickory]
             [hickory.zip :refer [hickory-zip]]
             [clojure.zip :as zip]
             [me.raynes.laser.zip :as lzip]
@@ -55,16 +56,16 @@
 (defn ^:private edit [l f & args]
   (let [result (apply f (zip/node l) args)]
     (if (sequential? result)
-      (let [result (for [node result] (or node ""))]
+      (let [result (for [node result] (clj/or node ""))]
         (if (zip/up l)
           (zip/replace (reduce #(zip/insert-left % %2) l result) "")
           (with-meta result {:merge-left true})))
-      (zip/replace l (or result "")))))
+      (zip/replace l (clj/or result "")))))
 
 (defn ^:private apply-selector
   "If the selector matches, run transformation on the loc."
   [loc [selector transform]]
-  (if (and (selector loc) (map? (zip/node loc)))
+  (if (clj/and (selector loc) (map? (zip/node loc)))
     (edit loc transform)
     loc))
 
@@ -119,7 +120,7 @@
           :or {type :element}}]
   {:tag tag
    :type type
-   :content (if (or (sequential? content) (nil? content))
+   :content (if (clj/or (sequential? content) (nil? content))
               content
               [content])
    :attrs attrs})
@@ -171,12 +172,12 @@
   [selector]
   (fn [loc] (not (selector loc))))
 
-(defn select-and
+(defn and
   "Like and, but for selectors. Returns true iff all selectors match."
   [& selectors]
   (fn [loc] (every? identity (map #(% loc) selectors))))
 
-(defn select-or
+(defn or
   "Like or, but for selectors. Returns true iff at least one selector matches.
    Like 'foo,bar' in css."
   [& selectors]
@@ -211,7 +212,7 @@
    it is more flexible." 
   ([parent-selector child-selector]
      (fn [loc]
-       (and (child-selector loc)
+       (clj/and (child-selector loc)
             (some parent-selector (safe-iterate zip/up loc)))))
   ([parent-selector child-selector & more]
      (descendant-of parent-selector (apply descendant-of child-selector more))))
@@ -221,7 +222,7 @@
    left selector matches the element immediately preceding it."
   [target left]
   (fn [loc]
-    (and (target loc)
+    (clj/and (target loc)
          (when-let [loc (zip/left loc)]
            (left loc)))))
 
@@ -231,7 +232,7 @@
    This is like 'foo > bar' in css."
   [parent-selector child-selector]
   (fn [loc]
-    (and (child-selector loc)
+    (clj/and (child-selector loc)
          (parent-selector (zip/up loc)))))
 
 ;; Transformers
@@ -275,7 +276,7 @@
   [class]
   (fn [node]
     (update-in node [:attrs :class]
-               #(string/join " " (clojure.core/remove #{class} (string/split % #" "))))))
+               #(string/join " " (clj/remove #{class} (string/split % #" "))))))
 
 (defn wrap
   "Wrap a node around the node. Provide the element name as a key (like :div)

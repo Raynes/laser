@@ -48,14 +48,14 @@
   (is (false? ((l/negate (l/element= :div)) html))
       (true? ((l/negate (l/element= :pre)) html))))
 
-(deftest select-and-test
-  (is (true? ((l/select-and (l/element= :div) (l/attr? :class)) html)))
-  (is (false? ((l/select-and (l/element= :pre) (l/attr? :class)) html))))
+(deftest and-test
+  (is (true? ((l/and (l/element= :div) (l/attr? :class)) html)))
+  (is (false? ((l/and (l/element= :pre) (l/attr? :class)) html))))
 
-(deftest select-or-test
-  (is (true? ((l/select-or (l/element= :div) (l/attr? :class)) html)))
-  (is (true? ((l/select-or (l/element= :pre) (l/attr? :class)) html)))
-  (is (false? ((l/select-or (l/element= :pre) (l/attr? :foo)) html))))
+(deftest or-test
+  (is (true? ((l/or (l/element= :div) (l/attr? :class)) html)))
+  (is (true? ((l/or (l/element= :pre) (l/attr? :class)) html)))
+  (is (false? ((l/or (l/element= :pre) (l/attr? :foo)) html))))
 
 (deftest descendant-of-test
   (let [html (-> html zip/next zip/next)]
