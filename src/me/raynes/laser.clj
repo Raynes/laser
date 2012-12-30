@@ -167,7 +167,7 @@
           node-classes (set (string/split
                              (get-in node [:attrs :class] "")
                              #" "))] 
-      (every? #(node-classes %) classes))))
+      (every? node-classes classes))))
 
 (defn id=
   "A selector that matches the node's id."
