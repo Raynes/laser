@@ -101,12 +101,15 @@
   (is (= (assoc node :attrs {:class "a"})
          ((l/remove-class "b") (assoc node :attrs {:class "a b"})))))
 
-(deftest wrap
+(deftest wrap-test
   (is (= {:type :element :tag :div :attrs {:class "hi"} :content [node]}
          ((l/wrap :div {:class "hi"}) node))))
 
 (deftest remove-test
   (is (= nil ((l/remove) node))))
+
+(deftest replace-test
+  (is (= {:foo :a} ((l/replace {:foo :a}) {:foo :bar}))))
 
 ;; Fragments and Documents
 

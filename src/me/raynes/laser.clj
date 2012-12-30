@@ -262,6 +262,10 @@
   "Delete a node."
   [] (constantly nil))
 
+(defn replace
+  "Replace a node."
+  [node] (constantly node))
+
 ;; High level
 
 (defn ^:private zip-seq
