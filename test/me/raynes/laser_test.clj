@@ -31,7 +31,7 @@
   (is (false? ((l/attr? :foo) html))))
 
 (deftest class=-test
-  (is (false? ((l/class= "a") html)))
+  (is (true? ((l/class= "a") html)))
   (is (true? ((l/class= "a" "b" "c") html)))
   (is (false? ((l/class= "d") html))))
 
