@@ -182,58 +182,58 @@
   [& selectors]
   (fn [loc] (boolean (some identity (map #(% loc) selectors)))))
 
-(defn descendant-of
-  "A selector that takes a number of selectors and matches them as follows:
-   If the last selector matches, check to make sure some parent node matches
-   the selector before it. If that one matches a node, make sure that the
-   selector before it also matches a parent node. In simple terms, it makes
-   sure that each selector matches a node that is a descendant of a node that
-   the selector before it matches. For example:
-
-   (descendant-of (element= :c) (element= :b) (element= :a))
-
-   matches the 'a' tag in the following HTML:
-
-   <c>
-    <b>
-     <a></a>
-    </b>
-   </c>
-
-   It is equivalent to 'c b a' in CSS." 
-  [& selectors]
+(defn select-walk
+  "A generalied function for implementing selectors that do the following
+   1) check if the last selector matches the current loc, 2) check that the
+   selector before it matches a new loc after a movement, and so on. Unless all
+   the selectors match like this, the result is a non-match."
+  [continue? move selectors]
   (fn [loc]
-    (let [selector (last selectors)
-          selectors (butlast selectors)]
+    (let [selectors (reverse selectors)
+          selector (first selectors)]
       (if (selector loc)
-        (:result
-         (reduce (fn [{:keys [loc]} selector]
-                   (cond
-                    (nil? loc) {:result false, :loc nil}
-                    (selector loc) {:result true, :loc (zip/up loc)}
-                    :else (recur {:result false, :loc (zip/up loc)} selector)))
-                 {:result false
-                  :loc (zip/up loc)}
-                 (reverse selectors)))
+        (loop [result false
+               loc (move loc)
+               [selector & selectors :as same] (rest selectors)]
+          (cond
+           (clj/and selector (nil? loc)) false
+           (nil? selector) result
+           :else (let [result (selector loc)]
+                   (if (continue? result loc)
+                     (recur result
+                            (move loc)
+                            (if result
+                              selectors
+                              same))
+                     result))))
         false))))
 
+(defn descendant-of
+  "Checks that the last selector passed matches the current loc. If so,
+   walks up the tree checking the next selector to see if it matches,
+   any ancestor nodes. If so, repeat. Equivalent to 'foo bar baz' in CSS
+   for matching a baz element that has a bar ancestor that has a foo
+   ancestor."
+  [& selectors]
+  (select-walk (constantly true) zip/up selectors))
+
 (defn adjacent-to
-  "A selector that matches iff target selector matches AND
-   left selector matches the element immediately preceding it."
-  [target left]
-  (fn [loc]
-    (clj/and (target loc)
-         (when-let [loc (zip/left loc)]
-           (left loc)))))
+  "Checks that the last selector matches the current loc. If so,
+   checks to see if the proceeding node matches the next selector.
+   If so, repeat until all selectors are matched or one doesn't.
+   Equivalent to 'foo + bar + baz' in CSS for matching a baz element
+   is proceeded by a bar element that is proceeded by a foo element."
+  [& selectors]
+  (select-walk (fn [result _] result) zip/left selectors))
 
 (defn child-of
-  "A selector that matches iff child selector matches
-   and parent-selector matches for the immediate parent node.
-   This is like 'foo > bar' in css."
-  [parent-selector child-selector]
-  (fn [loc]
-    (clj/and (child-selector loc)
-         (parent-selector (zip/up loc)))))
+  "Checks that the last selector matches the current loc. If so,
+   checks to see if the immediate parent matches the next selector.
+   If so, repeat. Equivalent to 'foo > bar > baz' in CSS for matching
+   a baz element whose parent is a bar element whose parent is a foo
+   element."
+  [& selectors]
+  (select-walk (fn [result _] result) zip/up selectors))
 
 ;; Transformers
 

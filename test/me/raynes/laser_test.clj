@@ -5,9 +5,11 @@
             [hickory.core :as hickory]
             [hickory.zip :as hzip]))
 
+;; TODO: Change all the lulzy (-> html zip/next ..) chains to (take (safe-iterate ..)) calls.
+
 ;; Selectors
 
-(def html (-> "<div class=\"a b c\" id=\"hi\"><p><a>hi</a><b>foo</b></p></div>"
+(def html (-> "<div class=\"a b c\" id=\"hi\"><p><a>hi</a><b>foo</b><c><span id=\"deep\"></span></c></p></div>"
               hickory/parse-fragment
               first
               hickory/as-hickory
@@ -64,17 +66,29 @@
     (is (false? ((l/descendant-of (l/element= :div) (l/element= :pre))
                  html)))
     (is (true? ((l/descendant-of (l/element= :div) (l/element= :p) (l/element= :a))
-                html)))))
+                html)))
+    (is (true? ((l/descendant-of (l/element= :div) (l/element= :p) (l/id= "deep"))
+                (-> html zip/next zip/next zip/next zip/next zip/next))))
+    (is (false? ((l/descendant-of (l/element= :div) (l/element= :p) (l/element= :random) (l/id= "deep"))
+                 (-> html zip/next zip/next zip/next zip/next zip/next))))))
 
 (deftest child-of-test
   (is (true? ((l/child-of (l/element= :div) (l/element= :p)) (zip/next html))))
-  (is (false? ((l/child-of (l/element= :div) (l/element= :a)) (zip/next (zip/next html))))))
+  (is (false? ((l/child-of (l/element= :div) (l/element= :a)) (zip/next (zip/next html)))))
+  (is (false? ((l/child-of (l/element= :div) (l/element= :p) (l/id= "deep"))
+               (-> html zip/next zip/next zip/next zip/next zip/next zip/next zip/next))))
+  (is (true? ((l/child-of (l/element= :div) (l/element= :p) (l/element= :c) (l/id= "deep"))
+              (-> html zip/next zip/next zip/next zip/next zip/next zip/next zip/next)))))
 
 (deftest adjacent-to-test
-  (is (true? ((l/adjacent-to (l/element= :b) (l/element= :a))
-              (-> html zip/next zip/next zip/next zip/next)))
-      (false? ((l/adjacent-to (l/element= :b) (l/element= :div))
-               (-> html zip/next zip/next zip/next zip/next)))))
+  (is (true? ((l/adjacent-to (l/element= :a) (l/element= :b))
+              (-> html zip/next zip/next zip/next zip/next))))
+  (is (false? ((l/adjacent-to (l/element= :b) (l/element= :div))
+               (-> html zip/next zip/next zip/next zip/next))))
+  (is (true? ((l/adjacent-to (l/element= :a) (l/element= :b) (l/element= :c))
+              (-> html zip/next zip/next zip/next zip/next zip/next zip/next))))
+  (is (false? ((l/adjacent-to (l/element= :a) (l/element= :e) (l/element= :c))
+               (-> html zip/next zip/next zip/next zip/next zip/next zip/next)))))
 
 ;; Transformers
 
