@@ -15,12 +15,12 @@
 
 (defn zip
   "Get a zipper suitable for passing to fragment, document, or select, from
-   hickory a hickory node/nodes."
+   a hickory node or a sequence of hickory nodes."
   [n]
-  (let [zipify (comp lzip/leftmost-descendant hickory-zip)]
-    (if (clj/and (sequential? n) (not (zipper? n)))
-      (map zipify n)
-      (zipify n))))
+  (cond
+   (zipper? n) n
+   (sequential? n) (map zip n)
+   :else (hickory-zip n)))
 
 (defn parse
   "Parses an HTML document. This is for top-level full documents,
