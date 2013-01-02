@@ -50,7 +50,7 @@
    as a string of HTML or it can be something than can be slurped (reader, file,
    etc)."
   [s]
-  (map zip (parse-fragment* s)))
+  (zip (parse-fragment* s)))
 
 (defn to-html
   "Convert a hickory zip back to html."
