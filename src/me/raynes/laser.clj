@@ -11,7 +11,7 @@
   "Checks to see if the object has zip/make-node metadata on it (confirming it
    to be a zipper."
   [obj]
-  (contains? :zip/make-node obj))
+  (contains? (meta obj) :zip/make-node))
 
 (defn zip
   "Get a zipper suitable for passing to fragment, document, or select, from
