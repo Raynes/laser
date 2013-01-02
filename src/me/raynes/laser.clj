@@ -299,12 +299,17 @@
   [zip]
   (take-while (comp not zip/end?) (iterate zip/next zip)))
 
-(defn select
-  "Select nodes that match one of the selectors."
+(defn select-locs
+  "Select locs that match one of the selectors."
   [zip & selectors]
   (for [loc (zip-seq zip)
         :when ((apply some-fn selectors) loc)]
-    (zip/node loc)))
+    loc))
+
+(defn select
+  "Select nodes that match one of the selectors."
+  [zip & selectors]
+  (map zip/node (apply select-locs zip selectors)))
 
 (defn document
   "Transform an HTML document. Use this for any top-level transformation.

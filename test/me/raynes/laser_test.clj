@@ -165,6 +165,11 @@
 
 ;; Screen scraping
 
+(deftest select-locs-test
+  (let [parsed (l/parse "<div></div>")]
+    (is (= (-> parsed zip/next zip/next zip/next zip/next)
+           (first (l/select-locs parsed (l/element= :div)))))))
+
 (deftest select-test
   (is (= '({:type :element,
             :attrs nil,
