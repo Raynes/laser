@@ -297,7 +297,7 @@
 (defn ^:private zip-seq
   "Get a seq of all of the nodes in a zipper."
   [zip]
-  (take-while (comp not zip/end?) (iterate lzip/next zip)))
+  (take-while (comp not zip/end?) (iterate zip/next zip)))
 
 (defn select
   "Select nodes that match one of the selectors."
@@ -312,7 +312,7 @@
    makes it one if it doesn't get one. Takes HTML parsed by the parse-html
    function."
   [s & fns]
-  (to-html (traverse-zip (partition 2 fns) s)))
+  (to-html (traverse-zip (partition 2 fns) (lzip/leftmost-descendant s))))
 
 (defn fragment
   "Transform an HTML fragment. Use document for transforming full HTML
