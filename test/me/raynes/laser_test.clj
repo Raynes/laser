@@ -169,11 +169,11 @@
   (is (= '({:type :element,
             :attrs nil,
             :tag :div,
-            :content ["hi"]}
+            :content [{:type :element, :attrs nil, :tag :div, :content ["hi"]}]}
            {:type :element,
             :attrs nil,
             :tag :div,
-            :content [{:type :element, :attrs nil, :tag :div, :content ["hi"]}]})
+            :content ["hi"]})
          (l/select (l/parse "<div><div>hi</div></div>") (l/element= :div)))))
 
 ;; Misc
@@ -191,16 +191,9 @@
          (l/node :a :attrs {:href "https://hi.com"} :content "hi"))))
 
 (deftest zip-test
-  (let [parsed '([{:type :element, :attrs nil, :tag :a, :content nil}
-                  {:l [], :pnodes [{:type :element,
-                                    :attrs nil,
-                                    :tag :div,
-                                    :content [{:type :element,
-                                               :attrs nil,
-                                               :tag :a,
-                                               :content nil}]}],
-                   :ppath nil, :r nil}])]
+  (let [parsed (map hzip/hickory-zip (l/parse-fragment* "<div><a></a></div>"))]
     (is (= parsed
-           (l/zip (l/parse-fragment* "<div><a></a></div>")))
-        (= (first parsed)
-           (l/zip (first (l/parse-fragment* "<div><a></a></div>")))))))
+           (l/zip (l/parse-fragment* "<div><a></a></div>"))))
+    (is (= (first parsed)
+           (l/zip (first (l/parse-fragment* "<div><a></a></div>")))))
+    (is (= parsed (l/zip parsed)))))
