@@ -232,6 +232,9 @@ me.raynes.laser=> (select (parse "<div><a id=\"hi\">hi</a><a>bye</a></div>") (el
 ({:type :element, :attrs {:id "hi"}, :tag :a, :content ["hi"]} {:type :element, :attrs nil, :tag :a, :content ["bye"]})
 ```
 
+There is also a `select-locs` function for when you're prefer zipper locations
+over the nodes themselves.
+
 ### Advanced Transforming
 
 You can do some pretty fancy things with transformers. Our examples are fun, but
