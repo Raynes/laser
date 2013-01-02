@@ -4,6 +4,9 @@
 
 [API reference](http://raynes.github.com/laser/)
 
+Check the [changelog](https://github.com/Raynes/laser/blob/master/CHANGELOG.md)
+for changes between versions.
+
 Laser is an HTML transformation library. I wouldn't call it a templating
 library, but that's the purpose it'll likely be used for the most and it is well
 suited to the task.
