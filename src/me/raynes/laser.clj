@@ -349,7 +349,8 @@
                (into % %2)
                (conj % %2))
             []
-            (map (partial traverse-zip pairs) (map lzip/leftmost-descendant s)))))
+            (for [node s]
+              (traverse-zip pairs (lzip/leftmost-descendant node))))))
 
 (defmacro defragment
   "Define a function that transforms a fragment of HTML. The first
