@@ -111,10 +111,6 @@
                       new-loc
                       (lzip/next new-loc)))))))
 
-(defn ^:private safe-iterate
-  "Just like iterate, but stops at the first nil value."
-  [f x] (take-while identity (iterate f x)))
-
 (defn nodes
   "Normalizes nodes. If s is a string, parse it as a fragment and get
    a sequence of nodes. If s is sequential already, return it assuming
