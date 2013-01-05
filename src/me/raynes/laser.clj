@@ -65,21 +65,39 @@
   [z]
   (string/join (map to-html z)))
 
+(defn ^:private merge? [loc]
+  (:merge-left (meta loc)))
+
+(defn ^:private merge-left [locs]
+  (with-meta locs {:merge-left true}))
+
 (defn ^:private edit [l f & args]
   (let [result (apply f (zip/node l) args)]
     (if (sequential? result)
       (let [result (for [node result] (clj/or node ""))]
         (if (zip/up l)
           (zip/replace (reduce #(zip/insert-left % %2) l result) "")
-          (with-meta result {:merge-left true})))
+          (merge-left result)))
       (zip/replace l (clj/or result "")))))
 
 (defn ^:private apply-selector
   "If the selector matches, run transformation on the loc."
   [loc [selector transform]]
   (if (clj/and (selector loc) (map? (zip/node loc)))
-    (edit loc transform)
-    loc))
+    (let [edited (edit loc transform)]
+      (if (merge? edited)
+        edited
+        [edited]))
+    [loc]))
+
+(defn ^:private apply-selectors [loc selectors]
+  (let [result (reduce (fn [locs selector]
+                         (mapcat #(apply-selector (zip %) selector) locs))
+                       [loc]
+                       selectors)]
+    (if (> (count result) 1)
+      (merge-left result)
+      (first result))))
 
 (defn ^:private traverse-zip
   "Iterate through an HTML zipper, running selectors and relevant transformations
@@ -87,10 +105,10 @@
   [selectors zip]
   (loop [loc zip]
     (cond
-     (:merge-left (meta loc)) loc
+     (merge? loc) loc
      (zip/end? loc) (zip/root loc)
-     :else (let [new-loc (reduce apply-selector loc selectors)]   
-             (recur (if (:merge-left (meta new-loc))
+     :else (let [new-loc (apply-selectors loc selectors)]
+             (recur (if (merge? new-loc)
                       new-loc
                       (lzip/next new-loc)))))))
 
