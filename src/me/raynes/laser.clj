@@ -74,10 +74,7 @@
 (defn ^:private edit [l f & args]
   (let [result (apply f (zip/node l) args)]
     (if (sequential? result)
-      (let [result (for [node result] (clj/or node ""))]
-        (if (zip/up l)
-          (zip/replace (reduce #(zip/insert-left % %2) l result) "")
-          (merge-left result)))
+      (merge-left (for [node result] (clj/or node "")))
       (zip/replace l (clj/or result "")))))
 
 (defn ^:private apply-selector
@@ -96,7 +93,9 @@
                        [loc]
                        selectors)]
     (if (> (count result) 1)
-      (merge-left result)
+      (if (zip/up loc)
+        (zip/remove (reduce #(zip/insert-left % %2) loc result))
+        (merge-left result))
       (first result))))
 
 (defn ^:private traverse-zip
