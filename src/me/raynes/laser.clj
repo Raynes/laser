@@ -203,7 +203,10 @@
   "A generalied function for implementing selectors that do the following
    1) check if the last selector matches the current loc, 2) check that the
    selector before it matches a new loc after a movement, and so on. Unless all
-   the selectors match like this, the result is a non-match."
+   the selectors match like this, the result is a non-match. The first argument
+   is a function that will be run on the result of the selector call and the loc
+   itself and should return true to continue or false to stop. The second argument
+   tells the function how to move in the selector. For example, zip/up."
   [continue? move selectors]
   (fn [loc]
     (let [selectors (reverse selectors)
