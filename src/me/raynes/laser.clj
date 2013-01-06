@@ -2,25 +2,13 @@
   (:refer-clojure :exclude [remove replace and or])
   (:require [clojure.core :as clj]
             [hickory.core :as hickory]
-            [hickory.zip :refer [hickory-zip]]
             [clojure.zip :as zip]
             [me.raynes.laser.zip :as lzip]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [flatland.useful.ns :refer [defalias]]))
 
-(defn zipper?
-  "Checks to see if the object has zip/make-node metadata on it (confirming it
-   to be a zipper."
-  [obj]
-  (contains? (meta obj) :zip/make-node))
-
-(defn zip
-  "Get a zipper suitable for passing to fragment, document, or select, from
-   a hickory node or a sequence of hickory nodes."
-  [n]
-  (cond
-   (zipper? n) n
-   (sequential? n) (map zip n)
-   :else (hickory-zip n)))
+(defalias zipper? lzip/zipper?)
+(defalias zip lzip/zip)
 
 (defn parse
   "Parses an HTML document. This is for top-level full documents,
@@ -64,52 +52,6 @@
   "Takes a parsed fragment and converts it back to HTML."
   [z]
   (string/join (map to-html z)))
-
-(defn ^:private merge? [loc]
-  (:merge-left (meta loc)))
-
-(defn ^:private merge-left [locs]
-  (with-meta locs {:merge-left true}))
-
-(defn ^:private edit [l f & args]
-  (let [result (apply f (zip/node l) args)]
-    (if (sequential? result)
-      (merge-left (for [node result] (clj/or node "")))
-      (zip/replace l (clj/or result "")))))
-
-(defn ^:private apply-selector
-  "If the selector matches, run transformation on the loc."
-  [loc [selector transform]]
-  (if (clj/and (selector loc) (map? (zip/node loc)))
-    (let [edited (edit loc transform)]
-      (if (merge? edited)
-        edited
-        [edited]))
-    [loc]))
-
-(defn ^:private apply-selectors [loc selectors]
-  (let [result (reduce (fn [locs selector]
-                         (mapcat #(apply-selector (zip %) selector) locs))
-                       [loc]
-                       selectors)]
-    (if (> (count result) 1)
-      (if (zip/up loc)
-        (zip/remove (reduce #(zip/insert-left % %2) loc result))
-        (merge-left result))
-      (first result))))
-
-(defn ^:private traverse-zip
-  "Iterate through an HTML zipper, running selectors and relevant transformations
-   on each node."
-  [selectors zip]
-  (loop [loc zip]
-    (cond
-     (merge? loc) loc
-     (zip/end? loc) (zip/root loc)
-     :else (let [new-loc (apply-selectors loc selectors)]
-             (recur (if (merge? new-loc)
-                      new-loc
-                      (lzip/next new-loc)))))))
 
 (defn nodes
   "Normalizes nodes. If s is a string, parse it as a fragment and get
@@ -333,7 +275,7 @@
    makes it one if it doesn't get one. Takes HTML parsed by the parse-html
    function."
   [s & fns]
-  (to-html (traverse-zip (partition 2 fns) (lzip/leftmost-descendant s))))
+  (to-html (lzip/traverse-zip (partition 2 fns) (lzip/leftmost-descendant s))))
 
 (defn fragment
   "Transform an HTML fragment. Use document for transforming full HTML
@@ -348,7 +290,7 @@
                (conj % %2))
             []
             (for [node s]
-              (traverse-zip pairs (lzip/leftmost-descendant node))))))
+              (lzip/traverse-zip pairs (lzip/leftmost-descendant node))))))
 
 (defmacro defragment
   "Define a function that transforms a fragment of HTML. The first
