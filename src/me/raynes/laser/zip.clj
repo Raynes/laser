@@ -1,5 +1,5 @@
 (ns me.raynes.laser.zip
-  (:refer-clojure :exclude [next])
+  (:refer-clojure :exclude [next remove])
   (:require [clojure.zip :as zip]))
 
 ;; This is all written by David Santiago and is pulled from his excellent
@@ -25,3 +25,8 @@
       [(zip/node loc) :end]
       (or (and (zip/right loc) (leftmost-descendant (zip/right loc)))
           (zip/up loc)))))
+
+(defn remove
+  "Same as clojure.zip/remove, but moves on to the next loc in a post order walk."
+  [loc]
+  (zip/next (zip/remove loc)))

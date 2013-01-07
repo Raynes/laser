@@ -94,7 +94,7 @@
                        selectors)]
     (if (> (count result) 1)
       (if (zip/up loc)
-        (zip/remove (reduce #(zip/insert-left % %2) loc result))
+        (lzip/remove (reduce #(zip/insert-left % %2) loc result))
         (merge-left result))
       (zip (first result)))))
 
