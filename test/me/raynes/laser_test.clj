@@ -163,6 +163,24 @@
           (l/parse "<a></a>")
           (l/element= :a) (l/content "hi")))))
 
+(deftest at-test
+  (is (= "<a>hi</a>"
+         (l/to-html (l/at {:type :element :tag :a}
+                          (l/element= :a) (l/content "hi"))))))
+
+;; Doesn't matter what we use for this test and at is the most easily accessible.
+(deftest single-item-seq-test
+  (is (= "<a></a>" (l/to-html (l/at {:type :element :tag :a}
+                                      (l/element= :a) (fn [node] (list node)))))))
+
+(deftest no-infinite-loop-test
+  (is (= "<table><tbody><tr><td></td></tr><tr><td></td></tr></tbody></table>"
+         (l/to-html
+          (l/at (first (l/parse-fragment "<table><tr><td></td></tr></table>"))
+                (l/descendant-of (l/element= :table)
+                                 (l/element= :tr))
+                (fn [node] (list node node)))))))
+
 ;; Screen scraping
 
 (deftest select-locs-test
