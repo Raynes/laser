@@ -96,7 +96,7 @@
       (if (zip/up loc)
         (zip/remove (reduce #(zip/insert-left % %2) loc result))
         (merge-left result))
-      (first result))))
+      (zip (first result)))))
 
 (defn ^:private traverse-zip
   "Iterate through an HTML zipper, running selectors and relevant transformations
@@ -109,7 +109,9 @@
      :else (let [new-loc (apply-selectors loc selectors)]
              (recur (if (merge? new-loc)
                       new-loc
-                      (lzip/next new-loc)))))))
+                      (try
+                        (lzip/next new-loc)
+                        (catch Exception _ (prn new-loc)))))))))
 
 (defn nodes
   "Normalizes nodes. If s is a string, parse it as a fragment and get
