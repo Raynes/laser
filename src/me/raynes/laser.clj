@@ -270,6 +270,11 @@
   [attr value]
   (fn [node] (assoc-in node [:attrs attr] value)))
 
+(defn update-attr
+  "Update an attribute with a function and optionally some args."
+  [attr f & args]
+  (fn [node] (apply update-in node [:attrs attr] f args)))
+
 (defn classes
   "Set the node's class attribute to the string."
   [value]
@@ -349,6 +354,14 @@
             []
             (for [node s]
               (traverse-zip pairs (lzip/leftmost-descendant node))))))
+
+(defn at
+  "Takes a single hickory node (like a transformer function) and walks it
+   applying selectors and transformers just like fragment. Useful for
+   doing sub-walks inside of fragments and document transformers. Has nothing
+   to do with Enlive."
+  [node & fns]
+  (first (apply fragment (zip [node]) fns)))
 
 (defmacro defragment
   "Define a function that transforms a fragment of HTML. The first
