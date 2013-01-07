@@ -109,9 +109,7 @@
      :else (let [new-loc (apply-selectors loc selectors)]
              (recur (if (merge? new-loc)
                       new-loc
-                      (try
-                        (lzip/next new-loc)
-                        (catch Exception _ (prn new-loc)))))))))
+                      (lzip/next new-loc)))))))
 
 (defn nodes
   "Normalizes nodes. If s is a string, parse it as a fragment and get
