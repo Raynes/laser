@@ -1,11 +1,13 @@
 (ns me.raynes.laser-test
   (:require [clojure.test :refer :all]
+            [midje.sweet :refer :all]
             [me.raynes.laser :as l]
             [clojure.zip :as zip]
             [hickory.core :as hickory]
             [hickory.zip :as hzip]))
 
-;; TODO: Change all the lulzy (-> html zip/next ..) chains to (take (safe-iterate ..)) calls.
+(defn nexts [n html]
+  (reduce #(%2 %) html (repeat n zip/next)))
 
 ;; Selectors
 
@@ -20,113 +22,115 @@
            :attrs nil
            :content nil})
 
-(deftest element=-test
-  (is (true? ((l/element= :div) html)))
-  (is (false? ((l/element= :pre) html))))
+(facts "about element="
+  ((l/element= :div) html) => true?
+  ((l/element= :pre) html) => false?)
 
-(deftest attr=-test
-  (is (true? ((l/attr= :class "a b c") html)))
-  (is (false? ((l/attr= :foo "bar") html))))
+(facts "about attr="
+  ((l/attr= :class "a b c") html) => true?
+  ((l/attr= :foo "bar") html) => false?)
 
-(deftest attr?-test
-  (is (true? ((l/attr? :class) html)))
-  (is (false? ((l/attr? :foo) html))))
+(facts "about attr?"
+  ((l/attr? :class) html) => true?
+  ((l/attr? :foo) html) => false?)
 
-(deftest class=-test
-  (is (true? ((l/class= "a") html)))
-  (is (true? ((l/class= "a" "b" "c") html)))
-  (is (false? ((l/class= "d") html))))
+(facts "about class="
+  ((l/class= "a") html) => true?
+  ((l/class= "a" "b" "c") html) => true?
+  ((l/class= "d") html) => false?)
 
-(deftest id=-test
-  (is (true? ((l/id= "hi") html)))
-  (is (false? ((l/id= "bye") html))))
+(facts "about id="
+  ((l/id= "hi") html) => true?
+  ((l/id= "bye") html) => false?)
 
-(deftest any-test
-  (is (true? ((l/any) html))))
+(fact "about any"
+  ((l/any) html) => true?)
 
 ;; Combinators
 
-(deftest negate-test
-  (is (false? ((l/negate (l/element= :div)) html))
-      (true? ((l/negate (l/element= :pre)) html))))
+(facts "about negate"
+  ((l/negate (l/element= :div)) html) => false?
+  ((l/negate (l/element= :pre)) html) => true?)
 
-(deftest and-test
-  (is (true? ((l/and (l/element= :div) (l/attr? :class)) html)))
-  (is (false? ((l/and (l/element= :pre) (l/attr? :class)) html))))
+(facts "about and"
+  ((l/and (l/element= :div) (l/attr? :class)) html) => true?
+  ((l/and (l/element= :pre) (l/attr? :class)) html) => false?)
 
-(deftest or-test
-  (is (true? ((l/or (l/element= :div) (l/attr? :class)) html)))
-  (is (true? ((l/or (l/element= :pre) (l/attr? :class)) html)))
-  (is (false? ((l/or (l/element= :pre) (l/attr? :foo)) html))))
+(facts "about or"
+  ((l/or (l/element= :div) (l/attr? :class)) html) => true?
+  ((l/or (l/element= :pre) (l/attr? :class)) html) => true?
+  ((l/or (l/element= :pre) (l/attr? :foo)) html) => false?)
 
-(deftest descendant-of-test
-  (let [html (-> html zip/next zip/next)]
-    (is (true? ((l/descendant-of (l/element= :div) (l/element= :a))
-                html)))
-    (is (false? ((l/descendant-of (l/element= :div) (l/element= :pre))
-                 html)))
-    (is (true? ((l/descendant-of (l/element= :div) (l/element= :p) (l/element= :a))
-                html)))
-    (is (true? ((l/descendant-of (l/element= :div) (l/element= :p) (l/id= "deep"))
-                (-> html zip/next zip/next zip/next zip/next zip/next))))
-    (is (false? ((l/descendant-of (l/element= :div) (l/element= :p) (l/element= :random) (l/id= "deep"))
-                 (-> html zip/next zip/next zip/next zip/next zip/next))))))
+(facts "about decendant-of"
+  (let [html (nexts 2 html)]
+    ((l/descendant-of (l/element= :div)
+                      (l/element= :a))
+     html) => true?
+    ((l/descendant-of (l/element= :div)
+                      (l/element= :pre))
+     html) => false?
+    ((l/descendant-of (l/element= :div)
+                      (l/element= :p)
+                      (l/element= :a))
+     html) => true?
+    ((l/descendant-of (l/element= :div)
+                      (l/element= :p)
+                      (l/id= "deep"))
+     (nexts 5 html)) => true?
+    ((l/descendant-of (l/element= :div)
+                      (l/element= :p)
+                      (l/element= :random)
+                      (l/id= "deep"))
+     (nexts 5 html)) => false?))
 
-(deftest child-of-test
-  (is (true? ((l/child-of (l/element= :div) (l/element= :p)) (zip/next html))))
-  (is (false? ((l/child-of (l/element= :div) (l/element= :a)) (zip/next (zip/next html)))))
-  (is (false? ((l/child-of (l/element= :div) (l/element= :p) (l/id= "deep"))
-               (-> html zip/next zip/next zip/next zip/next zip/next zip/next zip/next))))
-  (is (true? ((l/child-of (l/element= :div) (l/element= :p) (l/element= :c) (l/id= "deep"))
-              (-> html zip/next zip/next zip/next zip/next zip/next zip/next zip/next)))))
+(facts "about child-of"
+  ((l/child-of (l/element= :div) (l/element= :p)) (nexts 1 html)) => true?
+  ((l/child-of (l/element= :div) (l/element= :a)) (zip/next (zip/next html))) => false?
+  ((l/child-of (l/element= :div) (l/element= :p) (l/id= "deep")) (nexts 7 html)) => false?
+  ((l/child-of (l/element= :div) (l/element= :p) (l/element= :c) (l/id= "deep"))
+   (nexts 7 html)) => true?)
 
-(deftest adjacent-to-test
-  (is (true? ((l/adjacent-to (l/element= :a) (l/element= :b))
-              (-> html zip/next zip/next zip/next zip/next))))
-  (is (false? ((l/adjacent-to (l/element= :b) (l/element= :div))
-               (-> html zip/next zip/next zip/next zip/next))))
-  (is (true? ((l/adjacent-to (l/element= :a) (l/element= :b) (l/element= :c))
-              (-> html zip/next zip/next zip/next zip/next zip/next zip/next))))
-  (is (false? ((l/adjacent-to (l/element= :a) (l/element= :e) (l/element= :c))
-               (-> html zip/next zip/next zip/next zip/next zip/next zip/next)))))
+(facts "about adjacent-to"
+  ((l/adjacent-to (l/element= :a) (l/element= :b)) (nexts 4 html)) => true?
+  ((l/adjacent-to (l/element= :b) (l/element= :div)) (nexts 4 html)) => false?
+  ((l/adjacent-to (l/element= :a) (l/element= :b) (l/element= :c)) (nexts 6 html)) => true?
+  ((l/adjacent-to (l/element= :a) (l/element= :e) (l/element= :c)) (nexts 6 html)) => false?)
 
 ;; Transformers
 
-(deftest content-test
-  (is (= (assoc node :content ["hi"]) ((l/content "hi") node)))
-  (testing "Gets escaped in the end."
-    (is (= "<a>h&amp;i</a>"
-           (hickory/hickory-to-html ((l/content "h&i") node))))))
+(facts "about content"
+  ((l/content "hi") node) => (assoc node :content ["hi"])
+  (hickory/hickory-to-html ((l/content "h&i") node)) => "<a>h&amp;i</a>")
 
-(deftest html-content-test
-  (is (= (assoc node :content [node]) ((l/html-content "<a></a>") node))))
+(fact "about html-content"
+  ((l/html-content "<a></a>") node) => (assoc node :content [node]))
 
-(deftest attr-test
-  (is (= (assoc node :attrs {:class "a"}) ((l/attr :class "a") node))))
+(fact "about attr"
+  ((l/attr :class "a") node) => (assoc node :attrs {:class "a"}))
 
-(deftest classes-test
-  (is (= (assoc node :attrs {:class "a b"}) ((l/classes "a b") node))))
+(fact "about classes"
+  ((l/classes "a b") node) => (assoc node :attrs {:class "a b"}))
 
-(deftest id-test
-  (is (= (assoc node :attrs {:id "hi"}) ((l/id "hi") node))))
+(fact "about id"
+  ((l/id "hi") node) => (assoc node :attrs {:id "hi"}))
 
-(deftest add-class-test
-  (is (= (assoc node :attrs {:class "a b"})
-         ((l/add-class "b") (assoc node :attrs {:class "a"})))))
+(fact "about add-class"
+  ((l/add-class "b") (assoc node :attrs {:class "a"})) => (assoc node :attrs {:class "a b"}))
 
-(deftest remove-class-test
-  (is (= (assoc node :attrs {:class "a"})
-         ((l/remove-class "b") (assoc node :attrs {:class "a b"})))))
+(fact "about remove-class"
+  ((l/remove-class "b") (assoc node :attrs {:class "a b"})) => (assoc node :attrs {:class "a"}))
 
-(deftest wrap-test
-  (is (= {:type :element :tag :div :attrs {:class "hi"} :content [node]}
-         ((l/wrap :div {:class "hi"}) node))))
+(fact "about wrap"
+  ((l/wrap :div {:class "hi"}) node) => {:type :element
+                                         :tag :div
+                                         :attrs {:class "hi"}
+                                         :content [node]})
 
-(deftest remove-test
-  (is (= nil ((l/remove) node))))
+(fact "about remove"
+  ((l/remove) node) => nil?)
 
-(deftest replace-test
-  (is (= {:foo :a} ((l/replace {:foo :a}) {:foo :bar}))))
+(fact "about replace"
+ ((l/replace {:foo :a}) {:foo :bar}) => {:foo :a})
 
 ;; Fragments and Documents
 
@@ -136,87 +140,82 @@
    :tag tag
    :content nil})
 
-(deftest parse-fragment-test
-  (is (= '([{:type :element, :attrs nil, :tag :a, :content nil} nil]
-             [{:type :element, :attrs nil, :tag :a, :content nil} nil])
-         (l/parse-fragment "<a></a><a></a>"))))
+(fact "about parse-fragment"
+  (l/parse-fragment "<a></a><a></a>") => '([{:type :element,
+                                             :attrs nil,
+                                             :tag :a,
+                                             :content nil} nil]
+                                             [{:type :element,
+                                               :attrs nil,
+                                               :tag :a,
+                                               :content nil} nil]))
 
-(deftest fragment-test
-  (is (= (repeat 2 (element :a))
-         (l/fragment (l/parse-fragment "<a></a><a></a>")
-                     (l/element= :a) (fn [node] node))))
-  (testing "top-level added nodes are handled"
-    (is (= [(element :span) (element :a)
-            (element :span) (element :a)]
-           (l/fragment
-            (l/parse-fragment "<a></a><a></a>")
-            (l/element= :a) (fn [node] [(element :span) node]))))))
+(facts "about fragment"
+  (l/fragment (l/parse-fragment "<a></a><a></a>")
+              (l/element= :a) (fn [node] node)) => (repeat 2 (element :a))
+  (l/fragment
+   (l/parse-fragment "<a></a><a></a>")
+   (l/element= :a) (fn [node] [(element :span) node])) => [(element :span) (element :a)
+                                                           (element :span) (element :a)])
 
-(deftest nil-remove-test
-  (is (= "" (l/fragment-to-html
+(fact "nils are treated as removals and replaced as empty strings."
+  (l/fragment-to-html
              (l/fragment (l/parse-fragment "<a></a>")
-                         (l/any) (constantly nil))))))
+                         (l/any) (constantly nil))) => "")
 
-(deftest document-test
-  (is (= "<html><head></head><body><a>hi</a></body></html>"
-         (l/document
-          (l/parse "<a></a>")
-          (l/element= :a) (l/content "hi")))))
+(fact "about document"
+  (l/document
+   (l/parse "<a></a>")
+   (l/element= :a) (l/content "hi")) => "<html><head></head><body><a>hi</a></body></html>")
 
-(deftest at-test
-  (is (= "<a>hi</a>"
-         (l/to-html (l/at {:type :element :tag :a}
-                          (l/element= :a) (l/content "hi"))))))
+(fact "about at"
+  (l/to-html (l/at {:type :element :tag :a}
+                   (l/element= :a) (l/content "hi"))) => "<a>hi</a>")
+
 
 ;; Doesn't matter what we use for this test and at is the most easily accessible.
-(deftest single-item-seq-test
-  (is (= "<a></a>" (l/to-html (l/at {:type :element :tag :a}
-                                      (l/element= :a) (fn [node] (list node)))))))
+(fact "If a transformer contains a seq of a single node, handle it properly"
+  (l/to-html (l/at {:type :element :tag :a}
+                   (l/element= :a) (fn [node] (list node)))) => "<a></a>")
 
-(deftest no-infinite-loop-test
-  (is (= "<table><tbody><tr><td></td></tr><tr><td></td></tr></tbody></table>"
-         (l/to-html
-          (l/at (first (l/parse-fragment "<table><tr><td></td></tr></table>"))
-                (l/descendant-of (l/element= :table)
-                                 (l/element= :tr))
-                (fn [node] (list node node)))))))
+(fact "Adding nodes that the selector matches does not result in an infinite loop."
+  (l/to-html
+   (l/at (first (l/parse-fragment "<table><tr><td></td></tr></table>"))
+         (l/descendant-of (l/element= :table)
+                          (l/element= :tr))
+         (fn [node] (list node node)))) => "<table><tbody><tr><td></td></tr><tr><td></td></tr></tbody></table>")
 
 ;; Screen scraping
 
-(deftest select-locs-test
+(fact "about select-locs"
   (let [parsed (l/parse "<div></div>")]
-    (is (= (-> parsed zip/next zip/next zip/next zip/next)
-           (first (l/select-locs parsed (l/element= :div)))))))
+    (first (l/select-locs parsed (l/element= :div))) => (nexts 4 parsed)))
 
-(deftest select-test
-  (is (= '({:type :element,
-            :attrs nil,
-            :tag :div,
-            :content [{:type :element, :attrs nil, :tag :div, :content ["hi"]}]}
-           {:type :element,
-            :attrs nil,
-            :tag :div,
-            :content ["hi"]})
-         (l/select (l/parse "<div><div>hi</div></div>") (l/element= :div)))))
+(fact "about select"
+  (l/select (l/parse "<div><div>hi</div></div>") (l/element= :div))
+  => '({:type :element,
+        :attrs nil,
+        :tag :div,
+        :content [{:type :element, :attrs nil, :tag :div, :content ["hi"]}]}
+       {:type :element,
+        :attrs nil,
+        :tag :div,
+        :content ["hi"]}))
 
 ;; Misc
 
-(deftest node-test
-  (is (= {:type :element
-          :tag :a
-          :content nil
-          :attrs nil}
-         (l/node :a)))
-  (is (= {:type :element
-          :tag :a
-          :content ["hi"]
-          :attrs {:href "https://hi.com"}}
-         (l/node :a :attrs {:href "https://hi.com"} :content "hi"))))
+(facts "about node"
+  (l/node :a) => {:type :element
+                  :tag :a
+                  :content nil
+                  :attrs nil}
+  (l/node :a :attrs {:href "https://hi.com"} :content "hi") => {:type :element
+                                                                :tag :a
+                                                                :content ["hi"]
+                                                                :attrs {:href "https://hi.com"}})
 
-(deftest zip-test
+(facts "about zip"
   (let [parsed (map hzip/hickory-zip (l/parse-fragment* "<div><a></a></div>"))]
-    (is (= parsed
-           (l/zip (l/parse-fragment* "<div><a></a></div>"))))
-    (is (= (first parsed)
-           (l/zip (first (l/parse-fragment* "<div><a></a></div>")))))
-    (is (= parsed (l/zip parsed)))))
+    (l/zip (l/parse-fragment* "<div><a></a></div>")) => parsed
+    (l/zip (first (l/parse-fragment* "<div><a></a></div>"))) => (first parsed)
+    (l/zip parsed) => parsed))
