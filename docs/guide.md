@@ -109,7 +109,36 @@ in the next two sections.
 
 ## Selectors
 
+The reason you don't have to put any markup in your HTML for laser to work is
+because it walks your HTML itself. Because of this, a selector-based approach to
+changing things is possible. Unlike Enlive which uses a vector of keywords/faux
+css-selector approach, Laser simply uses selectors and combinators. Just
+functions. It's pretty simple. First of all, let's look at what a node is.
+
 ### Nodes
+
+Nodes are maps that contain data about HTML. The nodes laser uses are hickory
+nodes, ones used by the hickory library. It is similar to `clojure.xml`'s
+format, but with an extra `:type` key so that they are better suited to HTML
+data. Here is what a node looks like:
+
+```clojure
+{:type :element
+ :tag :a
+ :attrs {:href "https://github.com/Raynes/laser"}
+ :content ["laser"]}
+```
+
+This node corresponds to this HTML:
+
+```html
+<a href="laser">laser</a>
+```
+
+The parsed HTML tree is merely nested hickory nodes. Nodes are, of course,
+nested in the `:content` of other nodes to build this tree.
+
+### Anatomy of a selector
 
 ## Transformers
 
