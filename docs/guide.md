@@ -118,3 +118,5 @@ in the next two sections.
 ## Documents and fragments
 
 ## Screen scraping
+
+## Getting help
