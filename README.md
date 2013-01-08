@@ -4,6 +4,10 @@
 
 [API reference](http://raynes.github.com/laser/)
 
+I wrote a fairly large and thorough guide to laser
+[here](https://github.com/Raynes/laser/blob/master/docs/guide.md), but there is
+also a simple example below to wet your whistle if you'd like.
+
 Check the [changelog](https://github.com/Raynes/laser/blob/master/CHANGELOG.md)
 for changes between versions.
 
@@ -36,7 +40,7 @@ I wrote laser for a couple of reasons.
   that make me and other people happy. I also get to bitch about having too many
   things to maintain.
 
-## Usage
+## Example
 
 Laser is designed around selectors and transformers and combinators for
 them. It's pretty easy. Let's put together some HTML to transform:
@@ -95,169 +99,8 @@ user> (laser/document (laser/parse html) (laser/id= "hi") (laser/content "omg") 
 
 Ermahgerd.
 
-That's pretty simple, right? You might run into a little issue if you try to use
-this on a piece of HTML instead of a full document.
-
-```clojure
-user> (laser/document (laser/parse "<p>hi</p>") (laser/element= :p) (laser/content "omg"))
-"<html><head></head><body><p>omg</p></body></html>"
-```
-
-WAAAAAAT!?!?! There are html, head, and body tags, but we didn't put them there!
-I'm kinda angry now. The problem here is that anything in laser with `document`
-in the name works with entire HTML documents. If you don't give it a complete
-document, it makes it one.
-
-The idea you can have a bunch of 'fragment' of HTML that you process, and then
-use that HTML in a top-level document transformation.
-
-```clojure
-user> (laser/fragment (laser/parse-fragment "<p>hi</p>") (laser/element= :p) (laser/content "omg"))
-({:type :element, :attrs nil, :tag :p, :content ["omg"]})
-```
-
-An HTML string is not returned by `fragment`. The reasoning for this is because
-you will typically pass fragments to other templates, splicing it in with the
-`html-content` tranformation. If you do want an HTML string just do this:
-
-```clojure
-user> (laser/fragment-to-html (laser/fragment (laser/parse-fragment "<p>hi</p>") (laser/element= :p) (laser/content "omg")))
-"<p>omg</p>"
-```
-
-Let's try combining a fragment and a document.
-
-```clojure
-user> (laser/document
-        (laser/parse html)
-        (laser/element= :body) (-> "<p>foo</p>"
-                                   (laser/parse-fragment)
-                                   (laser/fragment
-                                   (laser/element= :p) (laser/content "no, it's a bar!"))
-                                   (laser/html-content)))
-"<html><head></head><body><p>no, it's a bar!</p></body></html>"
-```
-
-Now that's pretty cool, right? This example takes our HTML from earlier and
-replaces the body with HTML from a fragment. The fragment is a single `p`
-tag. All we're doing is replacing its text with some other text, just to make
-the example worthwhile.
-
-Finally, we also have some simple convinence macros for defining documents and
-fragments. Let's use them to do the same thing we did above a little prettier.
-
-```clojure
-user> (laser/defragment i-gotta-pee "<p>foo</p>" [] (laser/element= :p) (laser/content "no, it's a bar!"))
-#'user/i-gotta-pee
-user> (laser/defdocument i-like-fries html [] (laser/element= :body) (laser/html-content (i-gotta-pee)))
-#'user/i-like-fries
-user> (i-like-fries)
-"<html><head></head><body><p>no, it's a bar!</p></body></html>"
-```
-
-These macros don't do much at all so you don't have to use them unless they're a
-better fit for what you're doing. The most important thing is that the functions
-they define do not parse the HTML they're passed every single time. The HTML is
-parsed once as soon as the function is defined. This has the effect that if
-you're using HTML in files, you'll need to reload the namespace with your
-templates before you see the changes.
-
-### Advanced selecting
-
-Our examples are fun, but they don't do anything terribly interesting. Laser has
-a bunch of combinators to do interesting and complicated things with
-selectors. Here is one example. What if we wanted to only match `p` tags inside
-of a `div` and then generate a bunch of new p tags?
-
-```clojure
-user> (laser/fragment-to-html (laser/fragment html (laser/child-of (laser/element= :div) (laser/element= :p)) (fn [node] (for [x (range 10)] (assoc node :content [(str x)])))))
-"<div><p>0</p><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p></div>"
-```
-
-```clojure
-user> (laser/document (laser/parse html) (laser/child-of (laser/element= :div) (laser/element= :p)) (laser/content "omg"))
-"<html><head></head><body><p>foo</p><p id=\"hi\">bar</p><div><p class=\"meow\">omg</p></div></body></html>"
-```
-
-There are a bunch of combinators. Take a look at the [API reference](http://raynes.github.com/laser/) or code
-for a full list.
-
-### Selectors and transformers.
-
-Selectors and transformers are both just functions. All the ones we've shown are just
-functions that return functions that take nodes and return a node or a seq of
-nodes. Let's take a look at how the `element=` selector is defined.
-
-```clojure
-(defn element=
-  "A selector that matches an element with this name."
-  [element]
-  (fn [loc] (= element (-> loc zip/node :tag))))
-```
-
-`element=` is a function that takes an element and returns a selector function
-that matches when the element of the html node you're currently at is the same
-as the one passed into it. Under the hood, laser works with zippers. Selectors
-are passed the current zipper location and then the selector can do whatever it
-wants with it. Nodes inside the zipper are maps of the
-[hickory](https://github.com/davidsantiago/hickory) format, similar to
-clojure.xml.
-
-Transformations are similar. Let's look at `content`
-
-```clojure
-(defn content
-  "Set content of node to s."
-  [s]
-  (fn [node] (assoc node :content [(escape-html s)])))
-```
-
-`content` is a function that takes a string and returns a function that takes an
-html node (hickory format, as always) and sets the content of it to the string
-after it has been escaped.
-
-Given this knowledge, all the combinators (`select-and`, `select-or`,
-`child-of`, etc) are all just specialized ways of composing selectors! Simple
-enough, right?
-
-You can write your own selectors and transformers, but if you write any that you
-use often or think are generally useful, throw 'em at me in a pull request.
-
-### Screen Scraping
-
-You can also use laser for screen scraping. It has a `select` function
-specifically for this purpose:
-
-```clojure
-me.raynes.laser=> (select (parse "<div><a id=\"hi\">hi</a></div>") (id= "hi"))
-({:type :element, :attrs {:id "hi"}, :tag :a, :content ["hi"]})
-me.raynes.laser=> (select (parse "<div><a id=\"hi\">hi</a><a>bye</a></div>") (element= :a))
-({:type :element, :attrs {:id "hi"}, :tag :a, :content ["hi"]} {:type :element, :attrs nil, :tag :a, :content ["bye"]})
-```
-
-There is also a `select-locs` function for when you're prefer zipper locations
-over the nodes themselves.
-
-### Advanced Transforming
-
-You can do some pretty fancy things with transformers. Our examples are fun, but
-they don't do anything terribly interesting. Laser has
-a bunch of combinators to do interesting and complicated things with
-selectors. Here is one example. What if we wanted to only match `p` tags inside
-of a `div` and then generate a bunch of new p tags there?
-
-```clojure
-user> (laser/fragment-to-html
-        (laser/fragment
-          html
-          (laser/child-of (laser/element= :div)
-                          (laser/element= :p)) (fn [node]
-                                                 (for [x (range 10)]
-                                                   (assoc node :content [(str x)])))))
-"<div><p>0</p><p>1</p><p>2</p><p>3</p><p>4</p><p>5</p><p>6</p><p>7</p><p>8</p><p>9</p></div>"
-```
-
-Nice, huh?
+That's pretty simple, right? Laser can do a *lot* more than this. Please read
+the full (and fairly massive) guide to laser at https://github.com/Raynes/laser/blob/master/docs/guide.md
 
 ## Performance
 
