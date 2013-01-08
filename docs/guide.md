@@ -39,7 +39,12 @@ wanted something that was as powerful as Enlive, but simpler and more
 composable. Enlive uses tagsoup, Laser uses jsoup (via
 [hickory](https://github.com/davidsantiago/hickory)). Enlive uses faux css-style
 selectors, laser uses plain functions and powerful combinators for
-selectors. Laser is also less than half the size of Enlive at the moment.
+selectors. Laser is also less than half the size of Enlive at the moment. At the
+time of laser's creation (this may not always be true), Enlive was mostly
+unmaintained and had numerous open pull requests. The code base was too complex
+for me to want to pick it up myself, so I create laser as a direct alternative
+and will continue to maintain it for the foreseeable future even if Enlive picks
+back up.
 
 Laser can be used for templating, any sort of HTML transformations, and for
 screen scraping. Its uses and purposes will be explained throughout this guide.
