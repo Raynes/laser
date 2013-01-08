@@ -150,6 +150,13 @@
   (fn [loc]
     (= value (get-in (zip/node loc) [:attrs attr]))))
 
+(defn re-attr
+  "A selector that checks to see if attr exists and the regex matches
+   its value."
+  [attr re]
+  (fn [loc]
+    (re-find re (get-in (zip/node loc) [:attrs attr] ""))))
+
 (defn attr?
   "A selector that matches any element that has the attribute,
    regardless of value."

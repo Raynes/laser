@@ -34,6 +34,10 @@
   ((l/attr? :class) html) => true?
   ((l/attr? :foo) html) => false?)
 
+(facts "about re-attr"
+  ((l/re-attr :href #"^/foo") (hzip/hickory-zip (l/node :a :attrs {:href "/foo/bar"}))) => truthy
+  ((l/re-attr :href #"^/foo") (hzip/hickory-zip (l/node :a :attrs {:href "/bar/foo"}))) => falsey)
+
 (facts "about class="
   ((l/class= "a") html) => true?
   ((l/class= "a" "b" "c") html) => true?
