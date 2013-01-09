@@ -45,11 +45,15 @@
 
 (facts "about re-class"
   ((l/re-class #"a$") (l/zip {:attrs {:class "b oha c"}})) => truthy
-  ((l/re-class #"foo") (l/zip {:attrs {:class "a b c"}})) => falsey)
+  ((l/re-class #"a$") (l/zip {:attrs {:class "b aoh c"}})) => falsey)
 
 (facts "about id="
   ((l/id= "hi") html) => true?
   ((l/id= "bye") html) => false?)
+
+(facts "about re-id"
+  ((l/re-id #"a$") (l/zip {:attrs {:id "oha"}})) => truthy
+  ((l/re-id #"a$") (l/zip {:attrs {:id "aoh"}})) => falsey)
 
 (fact "about any"
   ((l/any) html) => true?)

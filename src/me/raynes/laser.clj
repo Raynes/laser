@@ -184,6 +184,10 @@
   "A selector that matches the node's id."
   [id] (attr= :id id))
 
+(defn re-id
+  "A convenience function for checking if the id attr of a node matches a regex."
+  [re] (re-attr :id re))
+
 (defn any
   "A selector that matches any node."
   [] (constantly true))
