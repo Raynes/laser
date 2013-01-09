@@ -170,11 +170,10 @@
   "A selector that matches if the node has these classes."
   [& classes]
   (fn [loc]
-    (let [node (zip/node loc)
-          node-classes (set (string/split
-                             (get-in node [:attrs :class] "")
-                             #" "))] 
-      (every? node-classes classes))))
+    (every? (set (string/split
+                  (get-in (zip/node loc) [:attrs :class] "")
+                  #" "))
+            classes)))
 
 (defn id=
   "A selector that matches the node's id."
