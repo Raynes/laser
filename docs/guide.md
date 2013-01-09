@@ -37,7 +37,7 @@ selectors, similar to how CSS works. Laser works the same way.
 Laser is a new alternative to Enlive. It was designed and written because I
 wanted something that was as powerful as Enlive, but simpler and more
 composable. Enlive uses tagsoup, Laser uses jsoup (via
-[hickory](https://github.com/davidsantiago/hickory)). Enlive uses faux css-style
+[hickory](https://github.com/davidsantiago/hickory ) ). Enlive uses faux css-style
 selectors, laser uses plain functions and powerful combinators for
 selectors. Laser is also less than half the size of Enlive at the moment. At the
 time of laser's creation (this may not always be true), Enlive was mostly
@@ -210,7 +210,7 @@ false
 This makes use of one of our selector combinators, `and`. It is just like
 Clojure's `and`, but works on selectors. There is also an `or`. There are lots
 of these fancy combinators, take a look at the source or
-[API docs](https://raynes.github.com/laser) to see them all.
+[API docs](http://raynes.github.com/laser) to see them all.
 
 ## Transformers
 
