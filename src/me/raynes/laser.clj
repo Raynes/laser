@@ -166,14 +166,14 @@
         (:attrs)
         (contains? attr))))
 
+(defn ^:private split-classes [loc]
+  (string/split (get-in (zip/node loc) [:attrs :class] "") #" "))
+
 (defn class=
   "A selector that matches if the node has these classes."
   [& classes]
   (fn [loc]
-    (every? (set (string/split
-                  (get-in (zip/node loc) [:attrs :class] "")
-                  #" "))
-            classes)))
+    (-> (split-classes loc) (set) (every? classes))))
 
 (defn id=
   "A selector that matches the node's id."
