@@ -401,3 +401,18 @@
          (document html# ~@(if (vector? bindings)
                              transformations
                              (cons bindings transformations)))))))
+
+;; Screen scraping
+
+(defn text
+  "Returns the text value of a node and its contents."
+  [node]
+  (cond
+   (string? node) node
+   (map? node) (apply str (map text (:content node)))
+   :else ""))
+
+(defn texts
+  "Returns a collection of text values from a collection of nodes."
+  [nodes]
+  (map text nodes))
