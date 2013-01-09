@@ -206,6 +206,10 @@
         :tag :div,
         :content ["hi"]}))
 
+(facts "about text"
+  (l/text (l/node :a :content "hi")) => "hi"
+  (l/text (l/node :div :content (l/node :div :content (l/node :a :content "hi")))) => "hi")
+
 ;; Misc
 
 (facts "about node"

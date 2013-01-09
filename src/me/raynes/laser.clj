@@ -322,23 +322,6 @@
 
 ;; High level
 
-(defn ^:private zip-seq
-  "Get a seq of all of the nodes in a zipper."
-  [zip]
-  (take-while (comp not zip/end?) (iterate zip/next zip)))
-
-(defn select-locs
-  "Select locs that match one of the selectors."
-  [zip & selectors]
-  (for [loc (zip-seq zip)
-        :when ((apply some-fn selectors) loc)]
-    loc))
-
-(defn select
-  "Select nodes that match one of the selectors."
-  [zip & selectors]
-  (map zip/node (apply select-locs zip selectors)))
-
 (defn document
   "Transform an HTML document. Use this for any top-level transformation.
    It expects a full HTML document (complete with <html> and <head>) and
@@ -406,13 +389,25 @@
 
 (defn text
   "Returns the text value of a node and its contents."
-  [node]
+  [node] 
   (cond
    (string? node) node
-   (map? node) (apply str (map text (:content node)))
+   (map? node) (string/join (map text (:content node)))
    :else ""))
 
-(defn texts
-  "Returns a collection of text values from a collection of nodes."
-  [nodes]
-  (map text nodes))
+(defn ^:private zip-seq
+  "Get a seq of all of the nodes in a zipper."
+  [zip]
+  (take-while (comp not zip/end?) (iterate zip/next zip)))
+
+(defn select-locs
+  "Select locs that match one of the selectors."
+  [zip & selectors]
+  (for [loc (zip-seq zip)
+        :when ((apply some-fn selectors) loc)]
+    loc))
+
+(defn select
+  "Select nodes that match one of the selectors."
+  [zip & selectors]
+  (map zip/node (apply select-locs zip selectors)))
