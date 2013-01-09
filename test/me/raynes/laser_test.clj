@@ -43,6 +43,10 @@
   ((l/class= "a" "b" "c") html) => true?
   ((l/class= "d") html) => false?)
 
+(facts "about re-class"
+  ((l/re-class #"a$") (l/zip {:attrs {:class "b oha c"}})) => truthy
+  ((l/re-class #"foo") (l/zip {:attrs {:class "a b c"}})) => falsey)
+
 (facts "about id="
   ((l/id= "hi") html) => true?
   ((l/id= "bye") html) => false?)
