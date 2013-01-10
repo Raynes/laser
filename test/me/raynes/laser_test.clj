@@ -132,6 +132,9 @@
 (fact "about remove-class"
   ((l/remove-class "b") (assoc node :attrs {:class "a b"})) => (assoc node :attrs {:class "a"}))
 
+(fact "about on"
+  (l/on {} (l/attr :foo "baz") (l/content "bar")) => {:attrs {:foo "baz"} :content ["bar"]})
+
 (fact "about wrap"
   ((l/wrap :div {:class "hi"}) node) => {:type :element
                                          :tag :div

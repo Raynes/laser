@@ -328,6 +328,11 @@
   "Replace a node."
   [node] (constantly node))
 
+(defn on
+  "Compose the transformers and run them on the node."
+  [node & transformers]
+  ((apply comp transformers) node))
+
 ;; High level
 
 (defn document
