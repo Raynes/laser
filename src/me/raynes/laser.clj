@@ -81,25 +81,17 @@
   "If the selector matches, run transformation on the loc."
   [loc [selector transform]]
   (if (clj/and (selector loc) (map? (zip/node loc)))
-    (let [edited (edit loc transform)]
-      (if (merge? edited)
-        edited
-        [edited]))
-    [loc]))
+    (let [result (edit loc transform)]
+      (if (clj/and (zip/up loc) (merge? result))
+        (lzip/next (zip/remove (reduce zip/insert-left loc result)))
+        result))
+    loc))
 
 (defn ^:private apply-selectors [loc selectors]
-  (let [result (reduce (fn [locs selector]
-                         (mapcat #(apply-selector (zip %) selector) locs))
-                       [loc]
-                       selectors)]
-    (if (> (count result) 1)
-      (if (zip/up loc)
-        (lzip/remove (reduce #(zip/insert-left % %2) loc result))
-        (merge-left result))
-      (zip (first result)))))
+  (reduce apply-selector loc selectors))
 
 (defn ^:private traverse-zip
-  "Iterate through an HTML zipper, running selectors and relevant transformations
+  "Iterate through an HTML zipper, running selectors and relevajnt transformations
    on each node."
   [selectors zip]
   (loop [loc zip]
