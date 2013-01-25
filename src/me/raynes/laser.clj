@@ -84,7 +84,7 @@
    (if (clj/and (selector loc) (map? (zip/node loc)))
      (let [result (edit loc transform)]
        (if (clj/and (zip/up loc) (merge? result))
-         (lzip/next (zip/remove (reduce zip/insert-left loc result)))
+         (zip/left (zip/replace (reduce zip/insert-left loc result) ""))
          result))
      loc)))
 
