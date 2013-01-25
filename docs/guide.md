@@ -278,9 +278,41 @@ there is exactly one. Our transformer is a function that (of course) takes a
 node and returns a seq of nodes to replace that node with. We're using `for` to
 iterate through our `links` vector and produce a new `<a>` node for each
 link. We're setting `:href` as well as the link's content. Finally, we call
-`to-html` on the result to get HTML back.
+`to-html` on the result to get HTML back. This is likely one of the most
+complicated transformers you'll see.
 
-This is likely one of the most complicated transformer you'll see.
+#### Behavior difference from Enlive
+
+**Don't bother reading this section unless you know why you're here. It's more
+of a history lession than anything, and might answer questions if you've noticed
+laser behaving differently from Enlive.**
+
+Laser behaves a bit differently than Enlive does when a transformer returns a
+seq of nodes. Let's take a look at a scenario to demonstrate the difference.
+
+You have two selectors, x and y. Both of them match any given `<a>` tag. Your
+x selector, which goes first, hits an `<a>` tag. Its transformer is called on
+this node and it returns a seq of 4 new `<a>` tags. But you still have to call
+the y selector. What do you call it on? Selectors are meant to run on a single
+location in a zipper, but now you have 4 completely new nodes. Here is how
+Enlive and laser both handle these cases.
+
+Enlive handles this scenario by running the y selector on all of those new tags
+I'm not entirely certain how it goes about this. Laser handles it by running the
+y selector on the last tag in the seq. It does this by simply inserting each new
+node into the zipper and then continuing with that location and the following
+selector.
+
+My rationale for doing it this way is as follows: it is simple and I'm not
+convinced that we ever need the enlive-like behavior. What I'm doing now is very
+simple, whereas doing what Enlive does is much more non-trivial, though it may
+seem like it wouldn't be. You can't just run the new selectors on the returned
+nodes. They have to be inserted into the zipper so that selectors like
+`descendant-of` can dig into the tree at higher levels than that node. Could we
+do it like Enlive does it? Yes, but it'd make the code quite a bit more
+complicated and I haven't seen a case where someone relied on Enlive's
+behavior. If you do, let me know about it and explain why you need it and I'll
+work on it.
 
 ### Composing transformers
 
