@@ -87,15 +87,6 @@
         result))
     loc))
 
-#_(defn ^:private apply-selectors [loc selectors]
-  (let [result (reduce #(let [result (apply-selector (zip (last %)) %2)]
-                          (concat (butlast %) result))
-                       [loc]
-                       selectors)]
-    (if (> (count result) 1)
-      (merge-left result)
-      (zip (first result)))))
-
 (defn ^:private loc-seq [loc selectors]
   (reduce (fn [[head & tail] acc]
             (let [result (apply-selector (zip head) acc)]
