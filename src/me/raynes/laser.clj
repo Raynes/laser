@@ -22,13 +22,6 @@
    (sequential? n) (map zip n)
    :else (hickory-zip n)))
 
-(defn root
-  "Get the root of s only if it is a zipper, else return s."
-  [s]
-  (if (zipper? s)
-    (zip/root s)
-    s))
-
 (defn parse
   "Parses an HTML document. This is for top-level full documents,
    complete with <body>, <head>, and <html> tags. If they are not
@@ -62,7 +55,10 @@
 (defn to-html
   "Convert a hickory zip back to html."
   [z]
-  (hickory/hickory-to-html (root z)))
+  (hickory/hickory-to-html
+   (if (zipper? z)
+     (zip/root z)
+     z)))
 
 (defn fragment-to-html
   "Takes a parsed fragment and converts it back to HTML."
@@ -121,7 +117,7 @@
   [selectors zip]
   (loop [loc zip]
     (cond
-     (merge? loc) (map root loc)
+     (merge? loc) loc
      (zip/end? loc) (zip/root loc)
      :else (let [new-loc (apply-selectors loc selectors)]
              (recur (if (merge? new-loc)
