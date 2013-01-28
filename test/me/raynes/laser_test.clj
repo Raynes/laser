@@ -199,7 +199,7 @@
    (l/at (l/node :span :content (l/node :div))
          (l/element= :div) (fn [node] [node node]))) => "<span><div></div><div></div></span>")
 
-(fact "Adding nodes that the selector matches does not result in an infinite loop."
+(facts "Adding nodes that the selector matches does not result in an infinite loop."
   (l/to-html
    (l/at (first (l/parse-fragment "<table><tr><td></td></tr></table>"))
          (l/descendant-of (l/element= :table)
@@ -208,6 +208,12 @@
   (l/to-html
    (l/at (first (l/parse-fragment "<span><div></div></span>"))
          (l/element= :div) (fn [_] [(l/node :div :content (l/node :div :content ""))]))))
+
+(fact "Seqs of nodes from transformers are merged into top-level fragments properly"
+  (l/fragment-to-html
+   (l/at (l/node :a)
+         (l/element= :a) (fn [node] [node "\n" node "\n"])
+         (l/element= :hi) (fn [_] :doesnt-matter))) => "<a></a>\n<a></a>\n")
 
 ;; Screen scraping
 

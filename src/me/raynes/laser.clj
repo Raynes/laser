@@ -22,6 +22,13 @@
    (sequential? n) (map zip n)
    :else (hickory-zip n)))
 
+(defn root
+  "Get the root of s only if it is a zipper, else return s."
+  [s]
+  (if (zipper? s)
+    (zip/root s)
+    s))
+
 (defn parse
   "Parses an HTML document. This is for top-level full documents,
    complete with <body>, <head>, and <html> tags. If they are not
@@ -55,10 +62,7 @@
 (defn to-html
   "Convert a hickory zip back to html."
   [z]
-  (hickory/hickory-to-html
-   (if (sequential? z)
-     (zip/root z)
-     z)))
+  (hickory/hickory-to-html (root z)))
 
 (defn fragment-to-html
   "Takes a parsed fragment and converts it back to HTML."
@@ -80,22 +84,36 @@
 (defn ^:private apply-selector
   "If the selector matches, run transformation on the loc."
   [loc [selector transform]]
-  (vector
-   (if (clj/and (selector loc) (map? (zip/node loc)))
-     (let [result (edit loc transform)]
-       (if (clj/and (zip/up loc) (merge? result))
-         (zip/left (zip/replace (reduce zip/insert-left loc result) ""))
-         result))
-     loc)))
+  (if (clj/and (selector loc) (map? (zip/node loc)))
+    (let [result (edit loc transform)]
+      (if (clj/and (zip/up loc) (merge? result))
+        (zip/left (zip/replace (reduce zip/insert-left loc result) ""))
+        result))
+    loc))
 
-(defn ^:private apply-selectors [loc selectors]
-  (let [result (reduce #(let [result (apply-selector (last %) %2)]
-                          (into (butlast %) result))
+#_(defn ^:private apply-selectors [loc selectors]
+  (let [result (reduce #(let [result (apply-selector (zip (last %)) %2)]
+                          (concat (butlast %) result))
                        [loc]
                        selectors)]
     (if (> (count result) 1)
       (merge-left result)
-      (first result))))
+      (zip (first result)))))
+
+(defn ^:private loc-seq [loc selectors]
+  (reduce (fn [[head & tail] acc]
+            (let [result (apply-selector (zip head) acc)]
+              (if (merge? result)
+                (into tail result)
+                (cons result tail))))
+          (list loc)
+          selectors))
+
+(defn ^:private apply-selectors [loc selectors]
+  (let [[head & tail :as all] (reverse (loc-seq loc selectors))]
+    (if (seq tail)
+      (merge-left all)
+      (zip head))))
 
 (defn ^:private traverse-zip
   "Iterate through an HTML zipper, running selectors and relevajnt transformations
@@ -103,7 +121,7 @@
   [selectors zip]
   (loop [loc zip]
     (cond
-     (merge? loc) loc
+     (merge? loc) (map root loc)
      (zip/end? loc) (zip/root loc)
      :else (let [new-loc (apply-selectors loc selectors)]
              (recur (if (merge? new-loc)
@@ -361,9 +379,13 @@
   "Takes a single hickory node (like a transformer function) and walks it
    applying selectors and transformers just like fragment. Useful for
    doing sub-walks inside of fragments and document transformers. Has nothing
-   to do with Enlive."
+   to do with Enlive. If the result is only one node that node is returned.
+   Otherwise, returns the seq of nodes."
   [node & fns]
-  (first (apply fragment (zip [node]) fns)))
+  (let [result (apply fragment (zip [node]) fns)]
+    (if (> (count result) 1)
+      result
+      (first result))))
 
 (defmacro defragment
   "Define a function that transforms a fragment of HTML. The first
