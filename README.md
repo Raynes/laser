@@ -102,62 +102,6 @@ Ermahgerd.
 That's pretty simple, right? Laser can do a *lot* more than this. Please read
 the full (and fairly massive) guide to laser at https://github.com/Raynes/laser/blob/master/docs/guide.md
 
-## Performance
-
-I haven't done much benchmarking. All I have done so far is clone David
-Santiago's view benchmarking stuff (which is specifically for this purpose),
-added laser to it and ran it against tinsel, hiccup, raw strings, and
-Enlive. Here are my results:
-
-```
-hiccup
-"Elapsed time: 73.931 msecs"
-"Elapsed time: 74.661 msecs"
-"Elapsed time: 67.882 msecs"
-hiccup (type-hint)
-"Elapsed time: 44.973 msecs"
-"Elapsed time: 34.207 msecs"
-"Elapsed time: 30.914 msecs"
-str
-"Elapsed time: 2.956 msecs"
-"Elapsed time: 2.238 msecs"
-"Elapsed time: 1.827 msecs"
-enlive
-"Elapsed time: 27.871 msecs"
-"Elapsed time: 30.446 msecs"
-"Elapsed time: 27.742 msecs"
-enlive with snippet
-"Elapsed time: 46.826 msecs"
-"Elapsed time: 46.143 msecs"
-"Elapsed time: 43.042 msecs"
-tinsel
-"Elapsed time: 57.633 msecs"
-"Elapsed time: 56.65 msecs"
-"Elapsed time: 46.488 msecs"
-tinsel (type-hint)
-"Elapsed time: 27.126 msecs"
-"Elapsed time: 35.935 msecs"
-"Elapsed time: 33.945 msecs"
-laser
-"Elapsed time: 27.078 msecs"
-"Elapsed time: 27.828 msecs"
-"Elapsed time: 23.844 msecs"
-laser (type-hint)
-"Elapsed time: 25.186 msecs"
-"Elapsed time: 24.318 msecs"
-"Elapsed time: 25.126 msecs"
-```
-
-My benchmarks used `defdocument`.
-
-What does this mean? Not the slightest clue. I haven't really done anything
-special for performance, and tinsel has some nice compile-time optimizations
-that make it do as much as possible at compile-time, so I imagine it is faster
-in some scenarios. The templates in the benchmark also seem fairly trivial, so I
-don't really know how they measure up with large templates and complex
-selecting/transforming. I think they are all close enough that the most
-important thing is using what you like the most.
-
 ## Credits
 
 * Anthony Grimes - The author.
