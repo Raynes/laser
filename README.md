@@ -16,7 +16,7 @@ library, but that's the purpose it'll likely be used for the most and it is well
 suited to the task.
 
 Laser is similar to [Enlive](https://github.com/cgrand/enlive) and
-[Tinsel](https://github.com/davidsantiago). Like those libraries, the idea is to
+[Tinsel](https://github.com/davidsantiago/tinsel). Like those libraries, the idea is to
 work with plain HTML with no special markup. You take that plain HTML in and use
 selectors to select pieces of HTML and transformation functions to transform the
 HTML the way you want. Laser comes with a bunch of selectors and transformers
