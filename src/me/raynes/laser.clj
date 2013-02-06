@@ -71,20 +71,26 @@
 (defn ^:private merge-left [locs]
   (with-meta locs {:merge-left true}))
 
+(defn ^:private replace-nils
+  "Replace nil nodes with empty strings so hickory can handle them."
+  [nodes]
+  (for [node nodes] (clj/or node "")))
+
 (defn ^:private edit [l f & args]
   (let [result (apply f (zip/node l) args)]
-    (if (sequential? result)
-      (merge-left (for [node result] (clj/or node "")))
-      (zip/replace l (clj/or result "")))))
+    (cond
+     (clj/and (sequential? result) (zip/up l))
+     (-> (reduce zip/insert-left l (replace-nils result))
+         (zip/replace "")
+         (zip/left))
+     (sequential? result) (merge-left (replace-nils result))
+     :else (zip/replace l (clj/or result "")))))
 
 (defn ^:private apply-selector
   "If the selector matches, run transformation on the loc."
   [loc [selector transform]]
   (if (clj/and (selector loc) (map? (zip/node loc)))
-    (let [result (edit loc transform)]
-      (if (clj/and (zip/up loc) (merge? result))
-        (zip/left (zip/replace (reduce zip/insert-left loc result) ""))
-        result))
+    (edit loc transform)
     loc))
 
 (defn ^:private loc-seq [loc selectors]
