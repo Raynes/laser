@@ -30,7 +30,7 @@ Huge props to David Santiago for writing
 I wrote laser for a couple of reasons.
 
 * Enlive does its job and is the precursor to the way laser does things. However,
-  it is highly complex and very large compared to laser. Laser strives to be as
+  it is very large and (arguably?) complex compared to laser. laser strives to be as
   simple as possible.
 * Enlive currently uses tagsoup, but I'd rather have something backed by jsoup.
 * I prefer function-based selectors rather than faux css selectors.
