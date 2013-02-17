@@ -36,21 +36,28 @@
       (hickory/as-hickory)
       (zip)))
 
-(defn parse-fragment*
-  "Like parse-fragment, but don't get a zipper over it."
+(defn nodes
+  "Normalizes nodes. If s is a string, parse it as a fragment and get
+   a sequence of nodes. If s is sequential already, return it assuming
+   it is already a seq of nodes. If it is anything else, wrap it in a
+   vector (for example, if it is a map, this will make it a vector of
+   maps (nodes)"
   [s]
-  (map hickory/as-hickory
-       (hickory/parse-fragment
-        (if (string? s)
-          s
-          (slurp s)))))
+  (cond
+   (string? s) (map hickory/as-hickory
+                    (hickory/parse-fragment
+                     (if (string? s)
+                       s
+                       (slurp s))))
+   (sequential? s) s
+   :else [s]))
 
 (defn parse-fragment
   "Parses an HTML fragment. s can be a string in which case it will be treated
    as a string of HTML or it can be something than can be slurped (reader, file,
    etc)."
   [s]
-  (zip (parse-fragment* s)))
+  (zip (nodes s)))
 
 (defn to-html
   "Convert a hickory zip back to html."
@@ -120,18 +127,6 @@
              (recur (if (merge? new-loc)
                       new-loc
                       (lzip/next new-loc)))))))
-
-(defn nodes
-  "Normalizes nodes. If s is a string, parse it as a fragment and get
-   a sequence of nodes. If s is sequential already, return it assuming
-   it is already a seq of nodes. If it is anything else, wrap it in a
-   vector (for example, if it is a map, this will make it a vector of
-   maps (nodes)"
-  [s]
-  (cond
-   (string? s) (parse-fragment* s)
-   (sequential? s) s
-   :else [s]))
 
 (defn node
   "Create a hickory node. The most information you need to provide is the tag

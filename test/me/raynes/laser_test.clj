@@ -249,7 +249,7 @@
                                                                 :attrs {:href "https://hi.com"}})
 
 (facts "about zip"
-  (let [parsed (map hzip/hickory-zip (l/parse-fragment* "<div><a></a></div>"))]
-    (l/zip (l/parse-fragment* "<div><a></a></div>")) => parsed
-    (l/zip (first (l/parse-fragment* "<div><a></a></div>"))) => (first parsed)
+  (let [parsed (map hzip/hickory-zip (l/nodes "<div><a></a></div>"))]
+    (l/zip (l/nodes "<div><a></a></div>")) => parsed
+    (l/zip (first (l/nodes "<div><a></a></div>"))) => (first parsed)
     (l/zip parsed) => parsed))
