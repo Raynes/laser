@@ -121,7 +121,7 @@
   [selectors zip]
   (loop [loc zip]
     (cond
-     (merge? loc) loc
+     (merge? loc) (map #(if (zipper? %) (zip/root %) %) loc)
      (zip/end? loc) (zip/root loc)
      :else (let [new-loc (apply-selectors loc selectors)]
              (recur (if (merge? new-loc)
