@@ -5,7 +5,8 @@
             [hickory.zip :refer [hickory-zip]]
             [clojure.zip :as zip]
             [me.raynes.laser.zip :as lzip]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [flatland.useful.ns :refer [defalias]]))
 
 (defn zipper?
   "Checks to see if the object has zip/make-node metadata on it (confirming it
@@ -36,10 +37,7 @@
       (hickory/as-hickory)
       (zip)))
 
-(defn unescaped
-  "Wraps a string in hickory.core.RawHTML. This will prevent the string from
-   being escaped by `hickory-to-html`."
-  [s] (hickory/->RawHTML s))
+(defalias unescaped hickory/unescaped)
 
 (defn nodes
   "Normalizes nodes. If s is a string, parse it as a fragment and get
