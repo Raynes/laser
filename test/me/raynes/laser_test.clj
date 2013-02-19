@@ -112,10 +112,8 @@
 
 (facts "about content"
   ((l/content "hi") node) => (assoc node :content ["hi"])
-  (hickory/hickory-to-html ((l/content "h&i") node)) => "<a>h&amp;i</a>")
-
-(fact "about html-content"
-  ((l/html-content "<a></a>") node) => (assoc node :content [node]))
+  (hickory/hickory-to-html ((l/content "h&i") node)) => "<a>h&amp;i</a>"
+  (hickory/hickory-to-html ((l/content (l/unescaped "<a></a>")) node)) => "<a><a></a></a>")
 
 (fact "about attr"
   ((l/attr :class "a") node) => (assoc node :attrs {:class "a"}))

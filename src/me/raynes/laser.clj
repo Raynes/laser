@@ -36,6 +36,11 @@
       (hickory/as-hickory)
       (zip)))
 
+(defn unescaped
+  "Wraps a string in hickory.core.RawHTML. This will prevent the string from
+   being escaped by `hickory-to-html`."
+  [s] (hickory/->RawHTML s))
+
 (defn nodes
   "Normalizes nodes. If s is a string, parse it as a fragment and get
    a sequence of nodes. If s is sequential already, return it assuming
@@ -44,13 +49,13 @@
    maps (nodes)"
   [s]
   (cond
-   (string? s) (map hickory/as-hickory
-                    (hickory/parse-fragment
-                     (if (string? s)
-                       s
-                       (slurp s))))
    (sequential? s) s
-   :else [s]))
+   (map? s) [s]
+   :else (map hickory/as-hickory
+              (hickory/parse-fragment
+               (if (string? s)
+                 s
+                 (slurp s))))))
 
 (defn parse-fragment
   "Parses an HTML fragment. s can be a string in which case it will be treated
@@ -274,16 +279,13 @@
 ;; Transformers
 
 (defn content
-  "Set content of node to the string s. It will be escaped automatically
-   by hickory when converting back to html."
+  "Set content of node to the string s. s can either be a collection of nodes
+   or a node (a map or a string). Any strings will automatically be escaped
+   unless wrapped in the RawHTML type by calling `unescaped` on them."
   [s]
-  (fn [node] (assoc node :content [s])))
-
-(defn html-content
-  "Set content of node to s, unescaped. Can take a string of HTML or
-   already parsed nodes."
-  [s]
-  (fn [node] (assoc node :content (nodes s))))
+  (fn [node] (assoc node :content (if (sequential? s)
+                                    s
+                                    [s]))))
 
 (defn attr
   "Set attribute attr to value."
