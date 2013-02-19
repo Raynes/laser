@@ -285,6 +285,18 @@
                                     s
                                     [s]))))
 
+(defn insert
+  "Inserts node(s) in direction which can be either :left or :right."
+  [direction nodes]
+  (fn [n]
+    (if (sequential? nodes)
+      (if (= :left direction)
+        (conj (vec nodes) n)
+        (cons n nodes))
+      (if (= :left direction)
+        [nodes n]
+        [n nodes]))))
+
 (defn attr
   "Set attribute attr to value."
   [attr value]

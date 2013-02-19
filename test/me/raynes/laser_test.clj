@@ -115,6 +115,12 @@
   (hickory/hickory-to-html ((l/content "h&i") node)) => "<a>h&amp;i</a>"
   (hickory/hickory-to-html ((l/content (l/unescaped "<a></a>")) node)) => "<a><a></a></a>")
 
+(facts "about insert"
+  ((l/insert :left "hi") (l/node :a)) => ["hi" (l/node :a)]
+  ((l/insert :right "hi") (l/node :a)) => [(l/node :a) "hi"]
+  ((l/insert :left ["hi" "there"]) (l/node :a)) => ["hi" "there" (l/node :a)]
+  ((l/insert :right ["hi" "there"]) (l/node :a)) => [(l/node :a) "hi" "there"])
+
 (fact "about attr"
   ((l/attr :class "a") node) => (assoc node :attrs {:class "a"}))
 
