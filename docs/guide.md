@@ -140,12 +140,7 @@ tree.
 
 #### Creating new nodes
 
-Sometimes you might find yourself wanting to create an HTML node in
-Clojure. Unlike in Enlive, you can't just insert an HTML string anywhere. Any
-strings placed into the HTML tree will be escaped on output. If you want to add
-HTML from Clojure, you'll want to create the nodes yourself or generate them
-with parsing functions we'll show you later. Here is a simple way to generate a
-node:
+You can generate hickory nodes in Clojure with this simple `node` function:
 
 ```clojure
 user> (l/node :a :attrs {:href "https://github.com/Raynes/laser"} :content "laser")
@@ -233,6 +228,17 @@ user> ((l/attr :href "https://github.com/Raynes/laser") {:type :element :tag :a}
 ```
 
 Excellent!
+
+### Escaping
+
+If you're constructing strings based on user input and then sticking them in
+your HTML, you definitely want to make sure they are escaped. Good news is that
+laser *always* escapes any strings you give it by default. In order to keep it
+from escaping a string you have to call the `me.raynes.laser/unescaped` function
+on the string. This mechanism was implemented to give people an escape hatch
+that didn't involve parsing their HTML if they already had it stored (like
+in a database), but also required thinking things through first. `unescaped`
+simply wraps the string in a `RawHTML` type that tells hickory to not escape it.
 
 ### Seqs of nodes
 
@@ -422,7 +428,7 @@ user> (def docu (l/parse "<div></div>"))
 #'user/docu
 user> (defn paragraph-with-class [class] (l/fragment frag (l/element= :p) (l/classes class)))
 #'user/paragraph-with-class
-user> (l/document docu (l/element= :div) (l/html-content (paragraph-with-class "paragraph")))
+user> (l/document docu (l/element= :div) (l/content (paragraph-with-class "paragraph")))
 "<html><head></head><body><div><p class=\"paragraph\">Welcome to fooland</p><p class=\"paragraph\">May I take your order?</p></div></body></html>"
 ```
 
