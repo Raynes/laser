@@ -347,13 +347,17 @@
 
 ;; High level
 
+(defn ^:private ffns [fns]
+  "Filters the fns into partitions of 2"
+  (partition 2 (filter fn? (flatten fns))))
+
 (defn document
   "Transform an HTML document. Use this for any top-level transformation.
    It expects a full HTML document (complete with <html> and <head>) and
    makes it one if it doesn't get one. Takes HTML parsed by the parse-html
    function."
   [s & fns]
-  (to-html (traverse-zip (partition 2 fns) (lzip/leftmost-descendant s))))
+  (to-html (traverse-zip (ffns fns) (lzip/leftmost-descendant s))))
 
 (defn fragment
   "Transform an HTML fragment. Use document for transforming full HTML
@@ -362,7 +366,7 @@
    composing fragments faster. You can call to-html on the output to get
    HTML."
   [s & fns]
-  (let [pairs (partition 2 fns)]
+  (let [pairs (ffns fns)]
     (reduce #(if (sequential? %2)
                (into % %2)
                (conj % %2))
