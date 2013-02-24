@@ -8,7 +8,7 @@
             [flatland.useful.ns :refer [defalias]]
             [flatland.useful.seq :refer [flatten-all]]))
 
-;; Some aliases
+;; Some aliases to stuff in me.raynes.laser.zip that is useful to users.
 (defalias zip lzip/zip)
 (defalias zipper? lzip/zipper?)
 (defalias unescaped hickory/unescaped)
