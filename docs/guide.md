@@ -439,6 +439,27 @@ is obviously preferrable, but in larger HTML transformations, you certainly want
 to make use of `fragment` to simplify and split your code into smaller,
 composable pieces.
 
+### Conditionals and other fun things
+
+You may find it somewhat restricting that you have to give `fragment` and
+`document` flat selector and transformer pairs. What if, for example, you want
+to only have one pair if some argument isn't nil? Well, you can actually give
+`fragment` and `document` seqs of selectors and transformers nested as deeply as
+you need. This means you can do stuff like this:
+
+```clojure
+(defn foo [x]
+  (l/fragment some-html
+             (l/element= :foo) (l/content "bar")
+             (when x
+               [(l/element= x) (l/content "baz")])))
+```
+
+Since `fragment` (and `document`) flattens the the resulting functions and
+filters out things that aren't functions, this will work. If the `when` returns
+nil then it'll be filtered out, but if it returns the selector and transformer
+pair, it'll be used.
+
 ### defdocument and defragment
 
 There are two convenience macros for defining document and fragment
