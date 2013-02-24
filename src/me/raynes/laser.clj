@@ -347,7 +347,7 @@
 
 ;; High level
 
-(defn ffns [fns]
+(defn ^:private ffns [fns]
   "Filters the fns into partitions of 2"
   (partition 2 (filter fn? (flatten fns))))
 
