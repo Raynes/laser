@@ -6,7 +6,8 @@
             [clojure.zip :as zip]
             [me.raynes.laser.zip :as lzip]
             [clojure.string :as string]
-            [flatland.useful.ns :refer [defalias]]))
+            [flatland.useful.ns :refer [defalias]]
+            [flatland.useful.seq :refer [flatten-all]]))
 
 (defn zipper?
   "Checks to see if the object has zip/make-node metadata on it (confirming it
@@ -347,9 +348,11 @@
 
 ;; High level
 
-(defn ^:private ffns [fns]
-  "Filters the fns into partitions of 2"
-  (partition 2 (filter fn? (flatten fns))))
+(defn ^:private flatten-fns [fns]
+  "Flatten the collection of functions and filter anything that is
+   not a function. Partition these by two to get our selector and
+   transformer pairs."
+  (partition 2 (filter ifn? (flatten-all fns))))
 
 (defn document
   "Transform an HTML document. Use this for any top-level transformation.
@@ -357,7 +360,7 @@
    makes it one if it doesn't get one. Takes HTML parsed by the parse-html
    function."
   [s & fns]
-  (to-html (traverse-zip (ffns fns) (lzip/leftmost-descendant s))))
+  (to-html (traverse-zip (flatten-fns fns) (lzip/leftmost-descendant s))))
 
 (defn fragment
   "Transform an HTML fragment. Use document for transforming full HTML
@@ -366,7 +369,7 @@
    composing fragments faster. You can call to-html on the output to get
    HTML."
   [s & fns]
-  (let [pairs (ffns fns)]
+  (let [pairs (flatten-fns fns)]
     (reduce #(if (sequential? %2)
                (into % %2)
                (conj % %2))
