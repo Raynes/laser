@@ -177,6 +177,26 @@
    (l/element= :a) (fn [node] [(element :span) node])) => [(element :span) (element :a)
                                                            (element :span) (element :a)])
 
+(fact "document and fragment allow conditionals and nested arrays of filter&transformer pairs"
+  (l/fragment
+    (l/parse-fragment "<html><div></div></html>")
+
+    ; this one will return nil, which will be filtered out
+    (when false
+      (l/element= :div ) (l/add-class "not-executed"))
+
+    ; allow nested filter&transformer pairs
+    [
+      (l/element= :div ) (l/add-class "c1")
+      (l/element= :div ) (l/add-class "c2")
+      [
+        [(l/element= :div ) (l/add-class "c3")]
+        ]
+      ]
+
+    ) => [{:attrs {:class "c1 c2 c3"}, :content nil, :tag :div, :type :element}]
+  )
+
 (fact "nils are treated as removals and replaced as empty strings."
   (l/fragment-to-html
              (l/fragment (l/parse-fragment "<a></a>")
