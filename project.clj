@@ -1,4 +1,4 @@
-(defproject me.raynes/laser "0.1.29"
+(defproject me.raynes/laser "0.1.30"
   :description "An HTML transformation library similar to Enlive/Tinsel."
   :url "https://github.com/Raynes/laser"
   :license {:name "Eclipse Public License"
