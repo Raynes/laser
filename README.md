@@ -32,7 +32,7 @@ I wrote laser for a couple of reasons.
 * Enlive does its job and is the precursor to the way laser does things. However,
   it is very large and (arguably?) complex compared to laser. laser strives to be as
   simple as possible.
-* Enlive currently uses tagsoup, but I'd rather have something backed by jsoup.
+* Enlive historically used tagsoup and I wanted something backed by jsoup.
 * I prefer function-based selectors rather than faux css selectors.
 * Tinsel is really nice, but one of my specific use-cases is a one-off runtime
   transformation and tinsel isn't designed for that sort of thing (though it
