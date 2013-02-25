@@ -284,7 +284,10 @@
   "Flatten the collection of functions and filter anything that is
    not a function. Partition these by two to get our selector and
    transformer pairs."
-  (partition 2 (filter ifn? (flatten-all fns))))
+  (filter ifn? (flatten-all fns)))
+
+(defn ^:private normalize-fns [fns]
+  (partition 2 (flatten-fns fns)))
 
 ;; High level
 
@@ -294,7 +297,7 @@
    makes it one if it doesn't get one. Takes HTML parsed by the parse-html
    function."
   [s & fns]
-  (to-html (lzip/traverse-zip (flatten-fns fns) (lzip/leftmost-descendant s))))
+  (to-html (lzip/traverse-zip (normalize-fns fns) (lzip/leftmost-descendant s))))
 
 (defn fragment
   "Transform an HTML fragment. Use document for transforming full HTML
@@ -303,7 +306,7 @@
    composing fragments faster. You can call to-html on the output to get
    HTML."
   [s & fns]
-  (let [pairs (flatten-fns fns)]
+  (let [pairs (normalize-fns fns)]
     (reduce #(if (sequential? %2)
                (into % %2)
                (conj % %2))
