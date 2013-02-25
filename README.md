@@ -65,7 +65,8 @@ Let's get that in a Clojure string.
 (def html "<html><head></head><body><p>foo</p><p id=\"hi\">bar</p><div><p class=\"meow\">baz</p></div></body></html>")
 ```
 
-Now, let's try some transformations.
+Now, let's try some transformations. `laser/document` takes a parsed document
+and alternating selector and transformer arguments:
 
 ```clojure
 user> (laser/document (laser/parse html) (laser/element= :p) (laser/content "omg"))
@@ -73,7 +74,7 @@ user> (laser/document (laser/parse html) (laser/element= :p) (laser/content "omg
 ```
 
 Easy enough, right? This transforms our HTML document to make all `p` tags have
-`"omg` content. Everybody needs this, right? It's important.
+`"omg"` content. Everybody needs this, right? It's important.
 
 But darn it, we don't want all of our `p` to be omg. Let's only change the ones
 with the `meow` class!
