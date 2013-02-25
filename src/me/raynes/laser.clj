@@ -280,13 +280,13 @@
   [node & transformers]
   ((apply comp transformers) node))
 
-;; High level
-
 (defn ^:private flatten-fns [fns]
   "Flatten the collection of functions and filter anything that is
    not a function. Partition these by two to get our selector and
    transformer pairs."
   (partition 2 (filter ifn? (flatten-all fns))))
+
+;; High level
 
 (defn document
   "Transform an HTML document. Use this for any top-level transformation.
