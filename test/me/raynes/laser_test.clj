@@ -24,14 +24,18 @@
 
 (facts "about element="
   ((l/element= :div) html) => true?
+  ((l/element= "div") html) => true?
   ((l/element= :pre) html) => false?)
 
 (facts "about attr="
   ((l/attr= :class "a b c") html) => true?
+  ((l/attr= "class" "a b c") html) => true?
+  ((l/attr= :class (keyword "a b c")) html) => true?
   ((l/attr= :foo "bar") html) => false?)
 
 (facts "about attr?"
   ((l/attr? :class) html) => true?
+  ((l/attr? "class") html) => true?
   ((l/attr? :foo) html) => false?)
 
 (facts "about re-attr"
@@ -41,6 +45,7 @@
 (facts "about class="
   ((l/class= "a") html) => true?
   ((l/class= "a" "b" "c") html) => true?
+  ((l/class= "a" :b :c) html) => true?
   ((l/class= "d") html) => false?)
 
 (facts "about re-class"
@@ -49,6 +54,7 @@
 
 (facts "about id="
   ((l/id= "hi") html) => true?
+  ((l/id= :hi) html) => true?
   ((l/id= "bye") html) => false?)
 
 (facts "about re-id"

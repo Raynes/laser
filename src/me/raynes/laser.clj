@@ -80,20 +80,20 @@
 (defn element=
   "A selector that matches an element with this name."
   [element]
-  (fn [loc] (= element (-> loc zip/node :tag))))
+  (fn [loc] (= (keyword element) (-> loc zip/node :tag))))
 
 (defn attr=
   "A selector that checks to see if attr exists and has the value."
   [attr value]
   (fn [loc]
-    (= value (get-in (zip/node loc) [:attrs attr]))))
+    (= (name value) (get-in (zip/node loc) [:attrs (keyword attr)]))))
 
 (defn re-attr
   "A selector that checks to see if attr exists and the regex matches
    its value."
   [attr re]
   (fn [loc]
-    (re-find re (get-in (zip/node loc) [:attrs attr] ""))))
+    (re-find re (get-in (zip/node loc) [:attrs (keyword attr)] ""))))
 
 (defn attr?
   "A selector that matches any element that has the attribute,
@@ -102,7 +102,7 @@
   (fn [loc]
     (-> (zip/node loc)
         (:attrs)
-        (contains? attr))))
+        (contains? (keyword attr)))))
 
 (defn ^:private split-classes [loc]
   (set (string/split (get-in (zip/node loc) [:attrs :class] "") #" ")))
@@ -110,7 +110,7 @@
 (defn class=
   "A selector that matches if the node has these classes."
   [& classes]
-  (fn [loc] (every? (split-classes loc) classes)))
+  (fn [loc] (every? (split-classes loc) (map name classes))))
 
 (defn re-class
   "A selector that matches if any of the node's classes match a regex."
