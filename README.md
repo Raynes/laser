@@ -95,7 +95,9 @@ How about we transform the one with id "hi" and the ones with class "meow" at
 the same time? WILD!
 
 ```clojure
-user> (laser/document (laser/parse html) (laser/id= "hi") (laser/content "omg") (laser/class= "meow") (laser/content "omg"))
+user> (laser/document (laser/parse html)
+        (laser/id= "hi")      (laser/content "omg")
+        (laser/class= "meow") (laser/content "omg"))
 "<html><head></head><body><p>foo</p><p id=\"hi\">omg</p><div><p class=\"meow\">omg</p></div></body></html>"
 ```
 
