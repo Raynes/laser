@@ -2,7 +2,7 @@
 
 [![Build Status](https://secure.travis-ci.org/Raynes/laser.png)](http://travis-ci.org/Raynes/laser)
 
-[API reference](http://raynes.github.com/laser/)
+[API reference](http://raynes.github.com/laser/docs)
 
 I wrote a fairly large and thorough guide to laser
 [here](https://github.com/Raynes/laser/blob/master/docs/guide.md), but there is
