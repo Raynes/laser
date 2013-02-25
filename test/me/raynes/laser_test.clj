@@ -248,15 +248,16 @@
     (first (l/select-locs parsed (l/element= :div))) => (nexts 4 parsed)))
 
 (fact "about select"
-  (l/select (l/parse "<div><div>hi</div></div>") (l/element= :div))
-  => '({:type :element,
-        :attrs nil,
-        :tag :div,
-        :content [{:type :element, :attrs nil, :tag :div, :content ["hi"]}]}
-       {:type :element,
-        :attrs nil,
-        :tag :div,
-        :content ["hi"]}))
+  (let [result '({:type :element,
+                  :attrs nil,
+                  :tag :div,
+                  :content [{:type :element, :attrs nil, :tag :div, :content ["hi"]}]}
+                 {:type :element,
+                  :attrs nil,
+                  :tag :div,
+                  :content ["hi"]})]
+    (l/select (l/parse "<div><div>hi</div></div>") (l/element= :div)) => result
+    (l/select (l/parse "<div><div>hi</div></div>") [(l/element= :div)]) => result))
 
 (facts "about text"
   (l/text (l/node :a :content "hi")) => "hi"

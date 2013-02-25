@@ -376,9 +376,10 @@
 (defn select-locs
   "Select locs that match one of the selectors."
   [zip & selectors]
-  (for [loc (zip-seq zip)
-        :when ((apply some-fn selectors) loc)]
-    loc))
+  (let [selectors (flatten-fns selectors)]
+    (for [loc (zip-seq zip)
+          :when ((apply some-fn selectors) loc)]
+      loc)))
 
 (defn select
   "Select nodes that match one of the selectors."
