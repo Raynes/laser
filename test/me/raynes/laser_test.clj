@@ -118,7 +118,6 @@
 
 (facts "about content"
   ((l/content "hi") node) => (assoc node :content ["hi"])
-  ((l/content "hi" nil "fi") node) => (assoc node :content ["hi" "fi"])
   (hickory/hickory-to-html ((l/content "h&i") node)) => "<a>h&amp;i</a>"
   (hickory/hickory-to-html ((l/content "<script/>") node)) => "<a>&lt;script/&gt;</a>"
   (hickory/hickory-to-html ((l/content (l/unescaped "<script/>")) node)) => "<a><script/></a>")
