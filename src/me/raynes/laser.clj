@@ -214,7 +214,7 @@
    or a node (a map or a string). Any strings will automatically be escaped
    unless wrapped in the RawHTML type by calling `unescaped` on them."
   [& s]
-  (fn [node] (assoc node :content (filter identity (flatten s)))))
+  (fn [node] (assoc node :content (flatten s))))
 
 (defn insert
   "Inserts node(s) in direction which can be either :left or :right."
