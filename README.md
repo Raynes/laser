@@ -33,7 +33,10 @@ I wrote laser for a couple of reasons.
   it is very large and (arguably?) complex compared to laser. laser strives to be as
   simple as possible.
 * Enlive historically used tagsoup and I wanted something backed by jsoup.
-* I prefer function-based selectors rather than faux css selectors.
+* I prefer function-based selectors rather than faux css selectors. Laser is
+  completely function based and designed to be an abstraction upon which you can
+  build things like css selectors *if you want* (but they are not necessary
+  at all).
 * Tinsel is really nice, but one of my specific use-cases is a one-off runtime
   transformation and tinsel isn't designed for that sort of thing (though it
   could do it).
