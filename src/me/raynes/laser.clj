@@ -65,7 +65,9 @@
 (defn fragment-to-html
   "Takes a parsed fragment and converts it back to HTML."
   [z]
-  (string/join (map to-html z)))(defn node
+  (string/join (map to-html z)))
+
+(defn node
   "Create a hickory node. The most information you need to provide is the tag
    name. Optional keyword arguments allow you to provide the rest. If you don't,
    defaults will be provided. Keys that can be passed are :type, :content, and
@@ -74,9 +76,10 @@
           :or {type :element}}]
   {:tag tag
    :type type
-   :content (if (clj/or (sequential? content) (nil? content))
-              content
-              [content])
+   :content (cond
+              (nil? content) nil
+              (sequential? content) (flatten content)
+              :else [content])
    :attrs attrs})
 
 ;; Selectors
@@ -214,10 +217,8 @@
   "Set content of node to the string s. s can either be a collection of nodes
    or a node (a map or a string). Any strings will automatically be escaped
    unless wrapped in the RawHTML type by calling `unescaped` on them."
-  [s]
-  (fn [node] (assoc node :content (if (sequential? s)
-                                    s
-                                    [s]))))
+  [& s]
+  (fn [node] (assoc node :content (filter identity (flatten s)))))
 
 (defn insert
   "Inserts node(s) in direction which can be either :left or :right."
@@ -366,7 +367,7 @@
 
 (defn text
   "Returns the text value of a node and its contents."
-  [node] 
+  [node]
   (cond
    (string? node) node
    (map? node) (string/join (map text (:content node)))
