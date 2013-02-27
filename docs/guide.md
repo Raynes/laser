@@ -240,11 +240,6 @@ that didn't involve parsing their HTML if they already had it stored (like
 in a database), but also required thinking things through first. `unescaped`
 simply wraps the string in a `RawHTML` type that tells hickory to not escape it.
 
-**One gotcha here: if your node is of type `:script`, you should not use
-`unescaped` for it's `:content`.** So, if you are seeing `hickory.core.RawHTML` in your
-generated HTML, then it's probably because you're trying to escape the `:content`
-of a `:script` node.
-
 ### Seqs of nodes
 
 The case of returning a single node is pretty simplistic. What if we
