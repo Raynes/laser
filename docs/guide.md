@@ -460,6 +460,35 @@ filters out things that aren't functions, this will work. If the `when` returns
 nil then it'll be filtered out, but if it returns the selector and transformer
 pair, it'll be used.
 
+### XML
+
+As of 1.1.0 (1.1.1 added \*parser\*), laser supports XML. By default, laser uses jsoup's validating HTML
+5 parser that is unsuitable for XML because it automatically corrects invalid
+HTML when it can. Jsoup also includes an XML parser so we're making use of
+that. Everything works the same, just pass a second argument, `:xml`, to the
+parsing functions.
+
+```clojure
+user> (l/parse "<td></td>" :xml)
+[{:type :document :content [(l/node :td)]} nil]
+user> (l/parse-fragment "<td></td>" :xml)
+[[(l/node :td) nil]] 
+```
+
+You can also set `me.raynes.laser/*parser*` to accomplish the same thing. This
+is especially useful when you're using `defdocument` and `defragment` for XML
+because they do handle parsing and do not accept a special parser arg like the
+regular parsing functions.
+
+```clojure
+user> (binding [l/*parser* :xml] (l/parse "<td></td>"))
+[{:type :document :content [(l/node :td)]} nil]
+user> (binding [l/*parser* :xml] (l/parse-fragment "<td></td>"))
+[[(l/node :td) nil]])
+```
+
+Everything else should work the same!
+
 ### defdocument and defragment
 
 There are two convenience macros for defining document and fragment
