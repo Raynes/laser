@@ -14,16 +14,17 @@
 (defalias unescaped hickory/unescaped)
 
 (defn parse
-  "Parses an HTML document. This is for top-level full documents,
+  "Parses an HTML or XML document. For HTML, this is for top-level full documents,
    complete with <body>, <head>, and <html> tags. If they are not
    present, they will be added to the final result. s can be a string
-   in which case it will be treated as a string of HTML or it can be
-   something that can be slurped (reader, file, etc)."
-  [s]
+   in which case it will be treated as a string of HTML or XML, or it can be
+   something that can be slurped (reader, file, etc). If type isn't passed,
+   :html is assumed, otherwise you can pass :xml to make laser use the xml parser."
+  [s & [type]]
   (-> (if (string? s)
         s
         (slurp s))
-      (hickory/parse)
+      (hickory/parse type)
       (hickory/as-hickory)
       (zip)))
 
@@ -32,8 +33,9 @@
    a sequence of nodes. If s is sequential already, return it assuming
    it is already a seq of nodes. If it is anything else, wrap it in a
    vector (for example, if it is a map, this will make it a vector of
-   maps (nodes)"
-  [s]
+   maps (nodes). An option second argument, :xml, can be passed to
+   make nodes parse the string as XML."
+  [s & [type]]
   (cond
    (sequential? s) s
    (map? s) [s]
@@ -41,14 +43,16 @@
               (hickory/parse-fragment
                (if (string? s)
                  s
-                 (slurp s))))))
+                 (slurp s))
+               type))))
 
 (defn parse-fragment
-  "Parses an HTML fragment. s can be a string in which case it will be treated
+  "Parses an HTML or XML fragment. s can be a string in which case it will be treated
    as a string of HTML or it can be something than can be slurped (reader, file,
-   etc)."
-  [s]
-  (zip (nodes s)))
+   etc). If optional argument type is passed and is :xml, the xml parser will
+   be used."
+  [s & [type]]
+  (zip (nodes s type)))
 
 (defn to-html
   "Convert a hickory zip back to html."

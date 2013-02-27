@@ -241,6 +241,10 @@
          (l/element= :a) (fn [node] [node "\n" node "\n"])
          (l/element= :hi) (fn [_] :doesnt-matter))) => "<a></a>\n<a></a>\n")
 
+(fact "there is xml support"
+  (l/parse "<td></td>" :xml) => [{:type :document :content [(l/node :td)]} nil]
+  (l/parse-fragment "<td></td>" :xml) => [[(l/node :td) nil]])
+
 ;; Screen scraping
 
 (fact "about select-locs"
