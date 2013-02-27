@@ -13,6 +13,11 @@
 (defalias zipper? lzip/zipper?)
 (defalias unescaped hickory/unescaped)
 
+(def ^:dynamic *parser*
+  "The parser parse-fragment and parse use. :html by default, another possible
+   value is :xml."
+  :html)
+
 (defn parse
   "Parses an HTML or XML document. For HTML, this is for top-level full documents,
    complete with <body>, <head>, and <html> tags. If they are not
@@ -24,7 +29,7 @@
   (-> (if (string? s)
         s
         (slurp s))
-      (hickory/parse type)
+      (hickory/parse (clj/or type *parser*))
       (hickory/as-hickory)
       (zip)))
 
@@ -44,7 +49,7 @@
                (if (string? s)
                  s
                  (slurp s))
-               type))))
+               (clj/or type *parser*)))))
 
 (defn parse-fragment
   "Parses an HTML or XML fragment. s can be a string in which case it will be treated

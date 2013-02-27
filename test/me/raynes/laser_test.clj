@@ -244,7 +244,10 @@
 
 (fact "there is xml support"
   (l/parse "<td></td>" :xml) => [{:type :document :content [(l/node :td)]} nil]
-  (l/parse-fragment "<td></td>" :xml) => [[(l/node :td) nil]])
+  (l/parse-fragment "<td></td>" :xml) => [[(l/node :td) nil]]
+  (binding [l/*parser* :xml]
+    (l/parse "<td></td>") => [{:type :document :content [(l/node :td)]} nil]
+    (l/parse-fragment "<td></td>") => [[(l/node :td) nil]]))
 
 ;; Screen scraping
 
