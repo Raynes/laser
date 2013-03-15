@@ -42,7 +42,7 @@ selectors, laser uses plain functions and powerful combinators for
 selectors. Laser is also less than half the size of Enlive at the moment. At the
 time of laser's creation (this may not always be true), Enlive was mostly
 unmaintained and had numerous open pull requests. The code base was too complex
-for me to want to pick it up myself, so I create laser as a direct alternative
+for me to want to pick it up myself, so I created laser as a direct alternative
 and will continue to maintain it for the foreseeable future even if Enlive picks
 back up.
 
