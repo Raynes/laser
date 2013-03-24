@@ -111,10 +111,7 @@ the full (and fairly massive) guide to laser at https://github.com/Raynes/laser/
 
 ## Credits
 
-* Anthony Grimes - The author.
-* David Santiago - Huge part of laser relies on a fork of his Hickory lib for HTML
-  stuff.
-* Andrew Brehaut - Uses Enlive, likes laser, gave me ideas.
+https://github.com/Raynes/laser/contributors
 
 ## License
 
