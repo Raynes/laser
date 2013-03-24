@@ -89,7 +89,7 @@
       (zip head))))
 
 (defn traverse-zip
-  "Iterate through an HTML zipper, running selectors and relevajnt transformations
+  "Iterate through an HTML zipper, running selectors and relevant transformations
    on each node."
   [selectors zip]
   (loop [loc zip]
