@@ -22,7 +22,7 @@ usually work in one of three ways:
   [jinja](http://jinja.pocoo.org/). This mixes logic and presentation, something
   some people firmly despise.
 * You write HTML with markup that your code will later replace as is the case
-  with [mustache](http://mustache.github.com/)
+  with [mustache](http://mustache.github.com/).
 
 Some people are very happy with any one of the above solutions. I myself have
 used Mustache via the excellent
@@ -63,7 +63,7 @@ what the latest version is and add it to your `project.clj` file. After that, go
 ahead and start up a repl: `lein repl` and follow along.
 
 I bet you'd like to actually see some laser, wouldn't you? Well, here is a
-simple example. Say you have this HTML:
+simple example. Say you have this HTML in `foo.html`:
 
 ```html
 <html>
@@ -234,7 +234,7 @@ Excellent!
 If you're constructing strings based on user input and then sticking them in
 your HTML, you definitely want to make sure they are escaped. Good news is that
 laser *always* escapes any strings you give it by default. In order to keep it
-from escaping a string you have to call the `me.raynes.laser/unescaped` function
+from escaping a string, you have to call the `me.raynes.laser/unescaped` function
 on the string. This mechanism was implemented to give people an escape hatch
 that didn't involve parsing their HTML if they already had it stored (like
 in a database), but also required thinking things through first. `unescaped`
@@ -275,7 +275,7 @@ user> (l/to-html
 "<div><a href=\"https://github.com/Raynes/laser\" class=\"link\">https://github.com/Raynes/laser</a><a href=\"https://github.com/Raynes/conch\" class=\"link\">https://github.com/Raynes/conch</a><a href=\"https://github.com/Raynes/refheap\" class=\"link\">https://github.com/Raynes/refheap</a></div>"
 ```
 
-This is our longest example yet! it's actually fairly simple though. We've
+This is our longest example yet! It's actually fairly simple though. We've
 introduced something completely new here, the `at` function. It will be
 explained later, but a simple explanation is that it takes a node and some
 selector and transformer pairs and walks the tree applying the transformations
@@ -594,8 +594,8 @@ device. I hope it helped you and that laser makes all your dreams come true. On
 the off chance that it doesn't and you have a problem here is what you should
 do:
 
-* Do you think your problem is a bug? Open an issue here on Github!
-* Do you have a feature request? Open an issue here on Github!
+* Do you think your problem is a bug? Open an issue here on GitHub!
+* Do you have a feature request? Open an issue here on GitHub!
 * Do you need help writing some laser code, have broken code that you can't
   figure out how to fix, or want some advice on how to solve a particular
   problem with laser? Feel free to contact me directly via email (it's on my
@@ -606,4 +606,4 @@ do:
   else who is familiar with laser may be, and they might be able to help you. Ya
   just gotta ask!
 
-Now go and etch your name into the internet with laser!
+Now go and etch your name into the Internet with laser!
