@@ -152,7 +152,7 @@
 (defn and
   "Like and, but for selectors. Returns true iff all selectors match."
   [& selectors]
-  (fn [loc] (every? identity (map #(% loc) selectors))))
+  (fn [loc] ((apply every-pred selectors) loc)))
 
 (defn or
   "Like or, but for selectors. Returns true iff at least one selector matches.
