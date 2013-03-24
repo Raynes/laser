@@ -132,7 +132,7 @@ data. Here is what a node looks like:
 This node corresponds to this HTML:
 
 ```html
-<a href="laser">laser</a>
+<a href="https://github.com/Raynes/laser">laser</a>
 ```
 
 Nodes are, of course, nested in the `:content` of other nodes to build the HTML
