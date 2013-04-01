@@ -359,7 +359,7 @@ We get back a zipper over the hickory HTML representation that we can pass to
 `document` (explained shortly). Notice how the `<html>`, `<head>`, and `<body>`
 tags were all added? This is because a document always produces a fully HTML 5
 compliant HTML document. If we need to parse only a fragment of HTML, we need to
-use `fragment` (duh)!
+use `parse-fragment` (duh)!
 
 ```clojure
 user> (l/parse-fragment "<a></a><p></p>")
