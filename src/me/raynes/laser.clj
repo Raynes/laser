@@ -158,7 +158,7 @@
   "Like or, but for selectors. Returns true iff at least one selector matches.
    Like 'foo,bar' in css."
   [& selectors]
-  (fn [loc] (boolean (some identity (map #(% loc) selectors)))))
+  (apply some-fn selectors))
 
 (defn select-walk
   "A generalied function for implementing selectors that do the following
