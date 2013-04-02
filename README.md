@@ -1,6 +1,8 @@
 # laser
 
-[![Build Status](https://secure.travis-ci.org/Raynes/laser.png)](http://travis-ci.org/Raynes/laser)
+![Laser Gun](https://raw.github.com/Raynes/laser/master/laser.jpg)
+
+![Build Status](http://travis-ci.org/Raynes/laser)
 
 [API reference](http://raynes.github.com/laser/docs)
 
