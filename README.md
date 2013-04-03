@@ -2,7 +2,7 @@
 
 ![Laser Gun](https://raw.github.com/Raynes/laser/master/laser.jpg)
 
-![Build Status](http://travis-ci.org/Raynes/laser)
+![Build Status](https://travis-ci.org/Raynes/laser.png)
 
 [API reference](http://raynes.github.com/laser/docs)
 
