@@ -42,8 +42,11 @@
   (contains? (meta obj) :zip/make-node))
 
 (defn zip
-  "Get a zipper suitable for passing to fragment, document, or select, from
-   a hickory node or a sequence of hickory nodes."
+  "Given a hickory node, returns a zipper. Given a sequence of hickory
+   nodes, returns a sequence of zippers. Zippers are suitable for
+   passing to fragment, document, or select.
+
+   Given a zipper it will return the zipper."
   [n]
   (cond
    (zipper? n) n
