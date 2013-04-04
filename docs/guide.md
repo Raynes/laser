@@ -205,7 +205,7 @@ false
 This makes use of one of our selector combinators, `and`. It is just like
 Clojure's `and`, but works on selectors. There is also an `or`. There are lots
 of these fancy combinators, take a look at the source or
-[API docs](http://raynes.github.com/laser) to see them all.
+[API docs](http://raynes.github.com/laser/docs/me.raynes.laser.html) to see them all.
 
 ## Transformers
 
