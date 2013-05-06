@@ -8,7 +8,7 @@
 
 I wrote a fairly large and thorough guide to laser
 [here](https://github.com/Raynes/laser/blob/master/docs/guide.md), but there is
-also a simple example below to whet your whistle if you'd like.
+also a simple example below to get you started if you like.
 
 Check the [changelog](https://github.com/Raynes/laser/blob/master/CHANGELOG.md)
 for changes between versions.
