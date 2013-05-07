@@ -117,6 +117,6 @@ https://github.com/Raynes/laser/contributors
 
 ## License
 
-Copyright © 2012 Anthony Grimes
+Copyright © 2013 Anthony Grimes
 
 Distributed under the Eclipse Public License, the same as Clojure.
