@@ -3,7 +3,7 @@
   :url "https://github.com/Raynes/laser"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.4.0"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
                  [me.raynes/hickory "0.4.1"]
                  [org.flatland/useful "0.9.3"]]
   :profiles {:dev {:dependencies [[midje "1.5-alpha8"]]}}
