@@ -243,11 +243,15 @@
          [(l/element= :hi) (fn [_] :doesnt-matter)])) => "<a></a>\n<a></a>\n")
 
 (fact "there is xml support"
-  (l/parse "<td></td>" :xml) => [{:type :document :content [(l/node :td)]} nil]
-  (l/parse-fragment "<td></td>" :xml) => [[(l/node :td) nil]]
+  (l/parse "<td></td>" :parser :xml) => [{:type :document :content [(l/node :td)]} nil]
+  (l/parse-fragment "<td></td>" :parser :xml) => [[(l/node :td) nil]]
   (binding [l/*parser* :xml]
     (l/parse "<td></td>") => [{:type :document :content [(l/node :td)]} nil]
     (l/parse-fragment "<td></td>") => [[(l/node :td) nil]]))
+
+(fact "knows what resources are"
+  (l/parse "simple.html" :resource true) => (l/parse (java.io.File. "resources/simple.html"))
+  (l/parse-fragment "simple.html" :resource true) => (l/parse-fragment (java.io.File. "resources/simple.html")))
 
 ;; Screen scraping
 

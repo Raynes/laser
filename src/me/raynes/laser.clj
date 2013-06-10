@@ -6,7 +6,7 @@
             [me.raynes.laser.zip :as lzip]
             [clojure.string :as string]
             [flatland.useful.ns :refer [defalias]]
-            [flatland.useful.seq :refer [flatten-all]]))
+            [clojure.java.io :as io]))
 
 ;; Some aliases to stuff in me.raynes.laser.zip that is useful to users.
 (defalias zip lzip/zip)
@@ -18,18 +18,28 @@
    value is :xml."
   :html)
 
+(defn ^:private eat
+  "If resource is truthy, get the s resource, otherwise if s is a string then
+   return it, otherwise slurp s. Named eat because slurp was taken."
+  [s resource?]
+  (cond
+    resource? (slurp (io/resource s))
+    (string? s) s
+    :else (slurp s)))
+
 (defn parse
   "Parses an HTML or XML document. For HTML, this is for top-level full documents,
    complete with <body>, <head>, and <html> tags. If they are not
    present, they will be added to the final result. s can be a string
    in which case it will be treated as a string of HTML or XML, or it can be
-   something that can be slurped (reader, file, etc). If type isn't passed,
-   :html is assumed, otherwise you can pass :xml to make laser use the xml parser."
-  [s & [type]]
-  (-> (if (string? s)
-        s
-        (slurp s))
-      (hickory/parse (clj/or type *parser*))
+   something that can be slurped (reader, file, etc). Optional keyword arguments
+   that can be passed:
+     :parser   -- Either :html or :xml to choose which parser to use.
+     :resource -- Either true or false. If true, wraps s in a resource."
+  [s & {:keys [parser resource]
+        :or {parser *parser*}}]
+  (-> (eat s resource)
+      (hickory/parse parser)
       (hickory/as-hickory)
       (zip)))
 
@@ -39,25 +49,27 @@
    it is already a seq of nodes. If it is anything else, wrap it in a
    vector (for example, if it is a map, this will make it a vector of
    maps (nodes). An option second argument, :xml, can be passed to
-   make nodes parse the string as XML."
-  [s & [type]]
+   make nodes parse the string as XML. Optional keyword arguments
+   that can be passed:
+     :parser   -- Either :html or :xml to choose which parser to use.
+     :resource -- Either true or false. If true, wraps s in a resource."
+  [s & {:keys [parser resource]
+        :or {parser *parser*}}]
   (cond
    (sequential? s) s
    (map? s) [s]
-   :else (map hickory/as-hickory
-              (hickory/parse-fragment
-               (if (string? s)
-                 s
-                 (slurp s))
-               (clj/or type *parser*)))))
+   :else (map hickory/as-hickory (hickory/parse-fragment (eat s resource) parser))))
 
 (defn parse-fragment
   "Parses an HTML or XML fragment. s can be a string in which case it will be treated
    as a string of HTML or it can be something than can be slurped (reader, file,
    etc). If optional argument type is passed and is :xml, the xml parser will
-   be used."
-  [s & [type]]
-  (zip (nodes s type)))
+   be used. Optional keyword arguments
+   that can be passed:
+     :parser   -- Either :html or :xml to choose which parser to use.
+     :resource -- Either true or false. If true, wraps s in a resource."
+  [s & args]
+  (zip (apply nodes s args)))
 
 (defn to-html
   "Convert a hickory zip back to html."
