@@ -14,7 +14,7 @@
 (defalias unescaped hickory/unescaped)
 
 (def ^:dynamic *parser*
-  "The parser parse-fragment and parse use. :html by default, another possible
+  "The parser parse-fragment and parse uses. :html by default, another possible
    value is :xml."
   :html)
 
