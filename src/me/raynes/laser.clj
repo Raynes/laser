@@ -290,16 +290,40 @@
   [node & transformers]
   ((apply comp transformers) node))
 
-(defn ^:private flatten-fns [fns]
-  "Flatten the collection of functions and filter anything that is
-   not a function. Partition these by two to get our selector and
-   transformer pairs."
-  (filter ifn? (flatten-all fns)))
-
-(defn ^:private normalize-fns [fns]
-  (partition 2 (flatten-fns fns)))
-
 ;; High level
+
+(defn pew
+  "Create a 'pew' (a combined selector + transformation function) from
+   a selector and transformer. This new function takes a zipper location
+   and if the selector matches on the loc then the transformation is
+   applied to the location."
+  [selector transformer]
+  (fn [loc]
+    (if (clj/and (selector loc) (map? (zip/node loc)))
+      (lzip/edit loc transformer)
+      loc)))
+
+(defn ^:private normalize-pews
+  "Build pews out of vectors of selector and transformer pairs."
+  [potential-pews]
+  (for [potential potential-pews
+        :when potential]
+    (if (fn? potential)
+      potential
+      (apply pew potential))))
+
+(defn compose-pews
+  "Compose pews and vectors of selectors and transformer functions
+   into one big pew function by turning them each into pews if they
+   aren't already pews and composing them with comp.
+   This is useful for conditionals inside fragments or documents:
+   (when foo
+     (compose-pews [[selector1 transformer2]
+                    [selector2 transformer2]]))"
+  [pews]
+  (->> (normalize-pews pews)
+       (reverse)
+       (apply comp)))
 
 (defn document
   "Transform an HTML document. Use this for any top-level transformation.
@@ -307,7 +331,7 @@
    makes it one if it doesn't get one. Takes HTML parsed by the parse-html
    function."
   [s & fns]
-  (to-html (lzip/traverse-zip (normalize-fns fns) (lzip/leftmost-descendant s))))
+  (to-html (lzip/traverse-zip (normalize-pews fns) (lzip/leftmost-descendant s))))
 
 (defn fragment
   "Transform an HTML fragment. Use document for transforming full HTML
@@ -316,13 +340,12 @@
    composing fragments faster. You can call to-html on the output to get
    HTML."
   [s & fns]
-  (let [pairs (normalize-fns fns)]
-    (reduce #(if (sequential? %2)
-               (into % %2)
-               (conj % %2))
-            []
-            (for [node s]
-              (lzip/traverse-zip pairs (lzip/leftmost-descendant node))))))
+  (reduce #(if (sequential? %2)
+             (into % %2)
+             (conj % %2))
+          []
+          (for [node s]
+            (lzip/traverse-zip (normalize-pews fns) (lzip/leftmost-descendant node)))))
 
 (defn at
   "Takes a single hickory node (like a transformer function) and walks it
@@ -386,7 +409,7 @@
 (defn select-locs
   "Select locs that match one of the selectors."
   [zip & selectors]
-  (let [selectors (flatten-fns selectors)]
+  (let [selectors selectors]
     (for [loc (zip-seq zip)
           :when ((apply some-fn selectors) loc)]
       loc)))

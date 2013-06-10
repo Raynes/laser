@@ -178,11 +178,11 @@
 
 (facts "about fragment"
   (l/fragment (l/parse-fragment "<a></a><a></a>")
-              (l/element= :a) (fn [node] node)) => (repeat 2 (element :a))
+              [(l/element= :a) (fn [node] node)]) => (repeat 2 (element :a))
   (l/fragment
    (l/parse-fragment "<a></a><a></a>")
-   (l/element= :a) (fn [node] [(element :span) node])) => [(element :span) (element :a)
-                                                           (element :span) (element :a)])
+   [(l/element= :a) (fn [node] [(element :span) node])]) => [(element :span) (element :a)
+                                                            (element :span) (element :a)])
 
 (fact "document and fragment allow conditionals and nested arrays of filter&transformer pairs"
   (l/fragment
@@ -190,12 +190,12 @@
 
    ; this one will return nil, which will be filtered out
    (when false
-     [(l/element= :div ) (l/add-class "not-executed")])
+     [(l/element= :div) (l/add-class "not-executed")])
 
-   ; allow nested filter&transformer pairs
-   [(l/element= :div ) (l/add-class "c1")
-    (l/element= :div ) (l/add-class "c2")
-    [[(l/element= :div ) (l/add-class "c3")]]]) => [{:attrs {:class "c1 c2 c3"},
+    (l/compose-pews
+      [[(l/element= :div) (l/add-class "c1")]
+       [(l/element= :div) (l/add-class "c2")]
+       [(l/element= :div) (l/add-class "c3")]])) => [{:attrs {:class "c1 c2 c3"},
                                                      :content nil,
                                                      :tag :div,
                                                      :type :element}])
@@ -203,44 +203,44 @@
 (fact "nils are treated as removals and replaced as empty strings."
   (l/fragment-to-html
              (l/fragment (l/parse-fragment "<a></a>")
-                         (l/any) (constantly nil))) => "")
+                         [(l/any) (constantly nil)])) => "")
 
 (fact "about document"
   (l/document
    (l/parse "<a></a>")
-   (l/element= :a) (l/content "hi")) => "<html><head></head><body><a>hi</a></body></html>")
+   [(l/element= :a) (l/content "hi")]) => "<html><head></head><body><a>hi</a></body></html>")
 
 (fact "about at"
   (l/to-html (l/at {:type :element :tag :a}
-                   (l/element= :a) (l/content "hi"))) => "<a>hi</a>")
+                   [(l/element= :a) (l/content "hi")])) => "<a>hi</a>")
 
 
 ;; Doesn't matter what we use for this test and at is the most easily accessible.
 (fact "If a transformer contains a seq of a single node, handle it properly"
   (l/to-html (l/at {:type :element :tag :a}
-                   (l/element= :a) (fn [node] (list node)))) => "<a></a>")
+                   [(l/element= :a) (fn [node] (list node))])) => "<a></a>")
 
 (fact "Seqs of nodes returned by transformers are inserted and
        the next selector is run on the last node in it."
   (l/to-html
    (l/at (l/node :span :content (l/node :div))
-         (l/element= :div) (fn [node] [node node]))) => "<span><div></div><div></div></span>")
+         [(l/element= :div) (fn [node] [node node])])) => "<span><div></div><div></div></span>")
 
 (facts "Adding nodes that the selector matches does not result in an infinite loop."
   (l/to-html
    (l/at (first (l/parse-fragment "<table><tr><td></td></tr></table>"))
-         (l/descendant-of (l/element= :table)
-                          (l/element= :tr))
-         (fn [node] (list node node)))) => "<table><tbody><tr><td></td></tr><tr><td></td></tr></tbody></table>"
+         [(l/descendant-of (l/element= :table)
+                           (l/element= :tr))
+         (fn [node] (list node node))])) => "<table><tbody><tr><td></td></tr><tr><td></td></tr></tbody></table>"
   (l/to-html
    (l/at (first (l/parse-fragment "<span><div></div></span>"))
-         (l/element= :div) (fn [_] [(l/node :div :content (l/node :div :content ""))]))))
+         [(l/element= :div) (fn [_] [(l/node :div :content (l/node :div :content ""))])])))
 
 (fact "Seqs of nodes from transformers are merged into top-level fragments properly"
   (l/fragment-to-html
    (l/at (l/node :a)
-         (l/element= :a) (fn [node] [node "\n" node "\n"])
-         (l/element= :hi) (fn [_] :doesnt-matter))) => "<a></a>\n<a></a>\n")
+         [(l/element= :a) (fn [node] [node "\n" node "\n"])]
+         [(l/element= :hi) (fn [_] :doesnt-matter)])) => "<a></a>\n<a></a>\n")
 
 (fact "there is xml support"
   (l/parse "<td></td>" :xml) => [{:type :document :content [(l/node :td)]} nil]
@@ -264,8 +264,7 @@
                   :attrs nil,
                   :tag :div,
                   :content ["hi"]})]
-    (l/select (l/parse "<div><div>hi</div></div>") (l/element= :div)) => result
-    (l/select (l/parse "<div><div>hi</div></div>") [(l/element= :div)]) => result))
+    (l/select (l/parse "<div><div>hi</div></div>") (l/element= :div)) => result))
 
 (facts "about text"
   (l/text (l/node :a :content "hi")) => "hi"
