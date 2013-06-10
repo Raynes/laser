@@ -299,7 +299,7 @@
    applied to the location."
   [selector transformer]
   (fn [loc]
-    (if (clj/and (selector loc) (map? (zip/node loc)))
+    (if (clj/and (map? (zip/node loc)) (selector loc))
       (lzip/edit loc transformer)
       loc)))
 
