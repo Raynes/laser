@@ -410,7 +410,8 @@
   [node]
   (cond
    (string? node) node
-   (map? node) (string/join (map text (:content node)))
+   (and (map? node)
+        (not= (:type node) :comment)) (string/join (map text (:content node)))
    :else ""))
 
 (defn ^:private zip-seq
