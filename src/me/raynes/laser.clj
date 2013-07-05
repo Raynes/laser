@@ -304,6 +304,16 @@
 
 ;; High level
 
+(defn ^:private split-keyword-args
+  "Split an argument list into a map of keyword arguments and their values
+   and a seq of the rest of the arguments. Assumes all of the keyword arguments
+   come first in the list."
+  [args]
+  (let [[others keyword-args] ((juxt drop-while take-while)
+                               (comp keyword? first)
+                               (partition-all 2 args))]
+    [(into {} (map vec keyword-args)) (apply concat others)]))
+
 (defn pew
   "Create a 'pew' (a combined selector + transformation function) from
    a selector and transformer. This new function takes a zipper location
@@ -337,13 +347,46 @@
        (reverse)
        (apply comp)))
 
+;; Screen scraping
+
+(defn text
+  "Returns the text value of a node and its contents."
+  [node]
+  (cond
+   (string? node) node
+   (map? node) (string/join (map text (:content node)))
+   :else ""))
+
+(defn ^:private zip-seq
+  "Get a seq of all of the nodes in a zipper."
+  [zip]
+  (take-while (comp not zip/end?) (iterate zip/next zip)))
+
+(defn select-locs
+  "Select locs that match one of the selectors."
+  [zip & selectors]
+  (for [loc (zip-seq zip)
+        :when ((apply some-fn selectors) loc)]
+    loc))
+
+(defn select
+  "Select nodes that match one of the selectors."
+  [zip & selectors]
+  (map zip/node (apply select-locs zip selectors)))
+
+;; Transformation
+
 (defn document
   "Transform an HTML document. Use this for any top-level transformation.
    It expects a full HTML document (complete with <html> and <head>) and
    makes it one if it doesn't get one. Takes HTML parsed by the parse-html
    function."
-  [s & fns]
-  (to-html (lzip/traverse-zip (normalize-pews fns) (lzip/leftmost-descendant s))))
+  [s & args]
+  (let [[args fns] (split-keyword-args args)
+        s (if-let [selector (:select args)]
+            (zip (first (select s selector)))
+            s)]
+    (to-html (lzip/traverse-zip (normalize-pews fns) (lzip/leftmost-descendant s)))))
 
 (defn fragment
   "Transform an HTML fragment. Use document for transforming full HTML
@@ -351,13 +394,16 @@
    sequence of zippers of the transformed HTML. This is to make
    composing fragments faster. You can call to-html on the output to get
    HTML."
-  [s & fns]
-  (reduce #(if (sequential? %2)
-             (into % %2)
-             (conj % %2))
-          []
-          (for [node s]
-            (lzip/traverse-zip (normalize-pews fns) (lzip/leftmost-descendant node)))))
+  [s & args]
+  (let [[args fns] (split-keyword-args args)]
+    (reduce #(if (sequential? %2)
+               (into % %2)
+               (conj % %2))
+            []
+            (for [node (if-let [selector (:select args)]
+                         (mapcat #(zip (select % selector)) s)
+                         s)]
+              (lzip/traverse-zip (normalize-pews fns) (lzip/leftmost-descendant node))))))
 
 (defn at
   "Takes a single hickory node (like a transformer function) and walks it
@@ -402,30 +448,3 @@
          (document html# ~@(if (vector? bindings)
                              transformations
                              (cons bindings transformations)))))))
-
-;; Screen scraping
-
-(defn text
-  "Returns the text value of a node and its contents."
-  [node]
-  (cond
-   (string? node) node
-   (map? node) (string/join (map text (:content node)))
-   :else ""))
-
-(defn ^:private zip-seq
-  "Get a seq of all of the nodes in a zipper."
-  [zip]
-  (take-while (comp not zip/end?) (iterate zip/next zip)))
-
-(defn select-locs
-  "Select locs that match one of the selectors."
-  [zip & selectors]
-  (for [loc (zip-seq zip)
-        :when ((apply some-fn selectors) loc)]
-    loc))
-
-(defn select
-  "Select nodes that match one of the selectors."
-  [zip & selectors]
-  (map zip/node (apply select-locs zip selectors)))
