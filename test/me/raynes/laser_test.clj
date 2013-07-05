@@ -182,7 +182,14 @@
   (l/fragment
    (l/parse-fragment "<a></a><a></a>")
    [(l/element= :a) (fn [node] [(element :span) node])]) => [(element :span) (element :a)
-                                                            (element :span) (element :a)])
+                                                             (element :span) (element :a)])
+
+(fact "fragment supports :select"
+  (l/fragment (l/parse-fragment "<div><div><div id=\"foo\"><p>hi</p></div></div></div>")
+              :select (l/id= "foo")
+              [(l/element= :p) (l/content "psych!")]) => [(l/node :div
+                                                                  :attrs {:id "foo"}
+                                                                  :content (l/node :p :content "psych!"))])
 
 (fact "document and fragment allow conditionals and nested arrays of filter&transformer pairs"
   (l/fragment
@@ -209,6 +216,11 @@
   (l/document
    (l/parse "<a></a>")
    [(l/element= :a) (l/content "hi")]) => "<html><head></head><body><a>hi</a></body></html>")
+
+(fact "document supports :select"
+  (l/document (l/parse "<div id=\"foo\"><p>hi</p></div>")
+              :select (l/id= :foo)
+              [(l/element= :p) (l/content "psych!")]) => "<div id=\"foo\"><p>psych!</p></div>")
 
 (fact "about at"
   (l/to-html (l/at {:type :element :tag :a}
