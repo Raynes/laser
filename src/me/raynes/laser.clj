@@ -425,13 +425,12 @@
    the function can take, and an optional forth argument should be a
    vector of bindings to give to let that will be visible to the body.
    The rest of the arguments are selector and transformer pairs."
-  [name s args bindings & transformations]
-  `(let [html# (parse-fragment ~s)]
-     (defn ~name ~args
-       (let ~(if (vector? bindings) bindings [])
-         (fragment html# ~@(if (vector? bindings)
-                             transformations
-                             (cons bindings transformations)))))))
+  [name s fargs & args]
+  (let [[{bindings :let, parser :parser, resource :resource} fns] (split-keyword-args args)]
+    `(let [html# (parse-fragment ~s :parser ~parser :resource ~resource)]
+       (defn ~name ~fargs
+         (let ~(clj/or bindings [])
+           (fragment html# ~@fns))))))
 
 (defmacro defdocument
   "Define a function that transforms an HTML document. The first
@@ -441,10 +440,9 @@
    the function can take, and an optional forth argument should be a
    vector of bindings to give to let that will be visible to the body.
    The rest of the arguments are selector and transformer pairs."
-  [name s args bindings & transformations]
-  `(let [html# (parse ~s)]
-     (defn ~name ~args
-       (let ~(if (vector? bindings) bindings [])
-         (document html# ~@(if (vector? bindings)
-                             transformations
-                             (cons bindings transformations)))))))
+  [name s fargs & args]
+  (let [[{bindings :let, parser :parser, resource :resource} fns] (split-keyword-args args)]
+    `(let [html# (parse ~s :parser ~parser :resource ~resource)]
+       (defn ~name ~fargs
+         (let ~(clj/or bindings [])
+           (document html# ~@fns))))))
