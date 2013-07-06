@@ -200,9 +200,9 @@
      [(l/element= :div) (l/add-class "not-executed")])
 
     (l/compose-pews
-      [[(l/element= :div) (l/add-class "c1")]
-       [(l/element= :div) (l/add-class "c2")]
-       [(l/element= :div) (l/add-class "c3")]])) => [{:attrs {:class "c1 c2 c3"},
+      [(l/element= :div) (l/add-class "c1")]
+      [(l/element= :div) (l/add-class "c2")]
+      [(l/element= :div) (l/add-class "c3")])) => [{:attrs {:class "c1 c2 c3"},
                                                      :content nil,
                                                      :tag :div,
                                                      :type :element}])

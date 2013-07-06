@@ -340,9 +340,9 @@
    aren't already pews and composing them with comp.
    This is useful for conditionals inside fragments or documents:
    (when foo
-     (compose-pews [[selector1 transformer2]
-                    [selector2 transformer2]]))"
-  [pews]
+     (compose-pews [selector1 transformer2]
+                   [selector2 transformer2]))"
+  [& pews]
   (->> (normalize-pews pews)
        (reverse)
        (apply comp)))
