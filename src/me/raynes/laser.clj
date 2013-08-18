@@ -380,7 +380,7 @@
 (defn document
   "Transform an HTML document. Use this for any top-level transformation.
    It expects a full HTML document (complete with <html> and <head>) and
-   makes it one if it doesn't get one. Takes HTML parsed by the parse-html
+   makes it one if it doesn't get one. Takes HTML parsed by the parse
    function."
   [s & args]
   (let [[args fns] (split-keyword-args args)
