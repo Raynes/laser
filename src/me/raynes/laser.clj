@@ -469,31 +469,3 @@
        (defn ~name ~fargs
          (let ~(clj/or bindings [])
            (document html# ~@fns))))))
-
-;; Screen scraping
-
-(defn text
-  "Returns the text value of a node and its contents."
-  [node]
-  (cond
-   (string? node) node
-   (map? node) (string/join (map text (:content node)))
-   :else ""))
-
-(defn ^:private zip-seq
-  "Get a seq of all of the nodes in a zipper."
-  [zip]
-  (take-while (comp not zip/end?) (iterate zip/next zip)))
-
-(defn select-locs
-  "Select locs that match one of the selectors."
-  [zip & selectors]
-  (let [selectors (flatten-fns selectors)]
-    (for [loc (zip-seq zip)
-          :when ((apply some-fn selectors) loc)]
-      loc)))
-
-(defn select
-  "Select nodes that match one of the selectors."
-  [zip & selectors]
-  (map zip/node (apply select-locs zip selectors)))
