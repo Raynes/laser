@@ -249,6 +249,28 @@
         [nodes n]
         [n nodes]))))
 
+(defn splice [index coll item]
+  "Inserts item at index in coll."
+  (let [s (split-at index coll)]
+    (concat (first s) item (last s))))
+
+(defn mix-with-children [ns mixer]
+  "Updates the children of a node with the output of a mixing function
+  that is passed the children of the node and the nodes to be mixed in."
+  (fn [n] (update-in n [:content] mixer (nodes ns))))
+
+(defn append [nodes]
+  "Inserts a node or sequence of nodes as the last child of the selected node."
+  (mix-with-children nodes into))
+
+(defn prepend [nodes]
+  "Inserts a node or sequence of nodes as the first child of the selected node."
+  (mix-with-children nodes #(into %2 %1)))
+
+(defn insert-child [n nodes]
+  "Inserts a node or sequence of nodes as the nth child of the selected node"
+  (mix-with-children nodes (partial splice n)))
+
 (defn attr
   "Set attribute attr to value."
   [attr value]
