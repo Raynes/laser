@@ -255,8 +255,8 @@
     (concat (first s) item (last s))))
 
 (defn mix-with-children [ns mixer]
-  "Updates the children of a node with nodes based on a mixing function
-  that takes is passed the children and the nodes to be mixed."
+  "Updates the children of a node with the output of a mixing function
+  that is passed the children of the node and the nodes to be mixed in."
   (fn [n] (update-in n [:content] mixer (nodes ns))))
 
 (defn append [nodes]
