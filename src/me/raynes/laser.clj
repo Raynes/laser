@@ -249,26 +249,23 @@
         [nodes n]
         [n nodes]))))
 
-(defn splice [index list insert]
-  "Inserts insert after at index in list"
-  (let [s (split-at index list)] (concat (first s) insert (last s))))
-
-(defn flip [f]
-  "Returns a function that applies f to its arguments in reverse order"
-  (fn [& xs] (apply f (reverse xs))))
+(defn splice [index coll item]
+  "Inserts item at index in coll."
+  (let [s (split-at index list)]
+    (concat (first s) insert (last s))))
 
 (defn mix-with-children [ns mixer]
-  "Updates the children of a node with nodes based on a mixing function that takes is passed the children and
-  the nodes to be mixed"
-  (fn [n] (update-in n [:content ] mixer (nodes ns))))
+  "Updates the children of a node with nodes based on a mixing function
+  that takes is passed the children and the nodes to be mixed."
+  (fn [n] (update-in n [:content] mixer (nodes ns))))
 
 (defn append [nodes]
-  "Inserts a node or sequence of nodes as the last child of the selected node"
+  "Inserts a node or sequence of nodes as the last child of the selected node."
   (mix-with-children nodes into))
 
 (defn prepend [nodes]
-  "Inserts a node or sequence of nodes as the first child of the selected node"
-  (mix-with-children nodes (flip into)))
+  "Inserts a node or sequence of nodes as the first child of the selected node."
+  (mix-with-children nodes #(into %2 %1)))
 
 (defn insert-child [n nodes]
   "Inserts a node or sequence of nodes as the nth child of the selected node"
