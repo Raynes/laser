@@ -59,7 +59,7 @@
 (defn ^:private merge-left [locs]
   (with-meta locs {:merge-left true}))
 
-(defn ^:private edit [l f & args]
+(defn edit [l f & args]
   (let [result (apply f (zip/node l) args)]
     (cond
      (and (sequential? result) (zip/up l))
@@ -69,16 +69,9 @@
      (sequential? result) (merge-left result)
      :else (zip/replace l result))))
 
-(defn ^:private apply-selector
-  "If the selector matches, run transformation on the loc."
-  [loc [selector transform]]
-  (if (and (selector loc) (map? (zip/node loc)))
-    (edit loc transform)
-    loc))
-
 (defn ^:private loc-seq [loc selectors]
-  (reduce (fn [[head & tail] acc]
-            (let [result (apply-selector (zip head) acc)]
+  (reduce (fn [[head & tail] pew]
+            (let [result (pew (zip head))]
               (if (merge? result)
                 (into tail result)
                 (cons result tail))))

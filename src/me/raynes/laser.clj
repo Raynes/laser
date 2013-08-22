@@ -6,7 +6,7 @@
             [me.raynes.laser.zip :as lzip]
             [clojure.string :as string]
             [flatland.useful.ns :refer [defalias]]
-            [flatland.useful.seq :refer [flatten-all]]))
+            [clojure.java.io :as io]))
 
 ;; Some aliases to stuff in me.raynes.laser.zip that is useful to users.
 (defalias zip lzip/zip)
@@ -14,22 +14,32 @@
 (defalias unescaped hickory/unescaped)
 
 (def ^:dynamic *parser*
-  "The parser parse-fragment and parse use. :html by default, another possible
+  "The parser parse-fragment and parse uses. :html by default, another possible
    value is :xml."
   :html)
+
+(defn ^:private eat
+  "If resource is truthy, get the s resource, otherwise if s is a string then
+   return it, otherwise slurp s. Named eat because slurp was taken."
+  [s resource?]
+  (cond
+    resource? (slurp (io/resource s))
+    (string? s) s
+    :else (slurp s)))
 
 (defn parse
   "Parses an HTML or XML document. For HTML, this is for top-level full documents,
    complete with <body>, <head>, and <html> tags. If they are not
    present, they will be added to the final result. s can be a string
    in which case it will be treated as a string of HTML or XML, or it can be
-   something that can be slurped (reader, file, etc). If type isn't passed,
-   :html is assumed, otherwise you can pass :xml to make laser use the xml parser."
-  [s & [type]]
-  (-> (if (string? s)
-        s
-        (slurp s))
-      (hickory/parse (clj/or type *parser*))
+   something that can be slurped (reader, file, etc). Optional keyword arguments
+   that can be passed:
+     :parser   -- Either :html or :xml to choose which parser to use.
+     :resource -- Either true or false. If true, wraps s in a resource."
+  [s & {:keys [parser resource]
+        :or {parser *parser*}}]
+  (-> (eat s resource)
+      (hickory/parse parser)
       (hickory/as-hickory)
       (zip)))
 
@@ -39,25 +49,27 @@
    it is already a seq of nodes. If it is anything else, wrap it in a
    vector (for example, if it is a map, this will make it a vector of
    maps (nodes). An option second argument, :xml, can be passed to
-   make nodes parse the string as XML."
-  [s & [type]]
+   make nodes parse the string as XML. Optional keyword arguments
+   that can be passed:
+     :parser   -- Either :html or :xml to choose which parser to use.
+     :resource -- Either true or false. If true, wraps s in a resource."
+  [s & {:keys [parser resource]
+        :or {parser *parser*}}]
   (cond
    (sequential? s) s
    (map? s) [s]
-   :else (map hickory/as-hickory
-              (hickory/parse-fragment
-               (if (string? s)
-                 s
-                 (slurp s))
-               (clj/or type *parser*)))))
+   :else (map hickory/as-hickory (hickory/parse-fragment (eat s resource) parser))))
 
 (defn parse-fragment
   "Parses an HTML or XML fragment. s can be a string in which case it will be treated
    as a string of HTML or it can be something than can be slurped (reader, file,
    etc). If optional argument type is passed and is :xml, the xml parser will
-   be used."
-  [s & [type]]
-  (zip (nodes s type)))
+   be used. Optional keyword arguments
+   that can be passed:
+     :parser   -- Either :html or :xml to choose which parser to use.
+     :resource -- Either true or false. If true, wraps s in a resource."
+  [s & args]
+  (zip (apply nodes s args)))
 
 (defn to-html
   "Convert a hickory zip back to html."
@@ -315,24 +327,92 @@
   [node & transformers]
   ((apply comp transformers) node))
 
-(defn ^:private flatten-fns [fns]
-  "Flatten the collection of functions and filter anything that is
-   not a function. Partition these by two to get our selector and
-   transformer pairs."
-  (filter ifn? (flatten-all fns)))
-
-(defn ^:private normalize-fns [fns]
-  (partition 2 (flatten-fns fns)))
-
 ;; High level
+
+(defn ^:private split-keyword-args
+  "Split an argument list into a map of keyword arguments and their values
+   and a seq of the rest of the arguments. Assumes all of the keyword arguments
+   come first in the list."
+  [args]
+  (let [[others keyword-args] ((juxt drop-while take-while)
+                               (comp keyword? first)
+                               (partition-all 2 args))]
+    [(into {} (map vec keyword-args)) (apply concat others)]))
+
+(defn pew
+  "Create a 'pew' (a combined selector + transformation function) from
+   a selector and transformer. This new function takes a zipper location
+   and if the selector matches on the loc then the transformation is
+   applied to the location."
+  [selector transformer]
+  (fn [loc]
+    (if (clj/and (map? (zip/node loc)) (selector loc))
+      (lzip/edit loc transformer)
+      loc)))
+
+(defn ^:private normalize-pews
+  "Build pews out of vectors of selector and transformer pairs."
+  [potential-pews]
+  (for [potential potential-pews
+        :when potential]
+    (if (fn? potential)
+      potential
+      (apply pew potential))))
+
+(defn compose-pews
+  "Compose pews and vectors of selectors and transformer functions
+   into one big pew function by turning them each into pews if they
+   aren't already pews and composing them with comp.
+   This is useful for conditionals inside fragments or documents:
+   (when foo
+     (compose-pews [selector1 transformer2]
+                   [selector2 transformer2]))"
+  [& pews]
+  (->> (normalize-pews pews)
+       (reverse)
+       (apply comp)))
+
+;; Screen scraping
+
+(defn text
+  "Returns the text value of a node and its contents."
+  [node]
+  (cond
+   (string? node) node
+   (and (map? node)
+        (not= (:type node) :comment)) (string/join (map text (:content node)))
+   :else ""))
+
+(defn ^:private zip-seq
+  "Get a seq of all of the nodes in a zipper."
+  [zip]
+  (take-while (comp not zip/end?) (iterate zip/next zip)))
+
+(defn select-locs
+  "Select locs that match one of the selectors."
+  [zip & selectors]
+  (for [loc (zip-seq zip)
+        :when ((apply some-fn selectors) loc)]
+    loc))
+
+(defn select
+  "Select nodes that match one of the selectors."
+  [zip & selectors]
+  (map zip/node (apply select-locs zip selectors)))
+
+;; Transformation
 
 (defn document
   "Transform an HTML document. Use this for any top-level transformation.
    It expects a full HTML document (complete with <html> and <head>) and
-   makes it one if it doesn't get one. Takes HTML parsed by the parse-html
+   makes it one if it doesn't get one. Takes HTML parsed by the parse
    function."
-  [s & fns]
-  (to-html (lzip/traverse-zip (normalize-fns fns) (lzip/leftmost-descendant s))))
+  [s & args]
+  (let [[args fns] (split-keyword-args args)
+        s (if-let [selector (:select args)]
+            (zip (first (select s selector)))
+            s)]
+    (to-html (lzip/traverse-zip (normalize-pews fns) (lzip/leftmost-descendant s)))))
 
 (defn fragment
   "Transform an HTML fragment. Use document for transforming full HTML
@@ -340,14 +420,16 @@
    sequence of zippers of the transformed HTML. This is to make
    composing fragments faster. You can call to-html on the output to get
    HTML."
-  [s & fns]
-  (let [pairs (normalize-fns fns)]
+  [s & args]
+  (let [[args fns] (split-keyword-args args)]
     (reduce #(if (sequential? %2)
                (into % %2)
                (conj % %2))
             []
-            (for [node s]
-              (lzip/traverse-zip pairs (lzip/leftmost-descendant node))))))
+            (for [node (if-let [selector (:select args)]
+                         (mapcat #(zip (select % selector)) s)
+                         s)]
+              (lzip/traverse-zip (normalize-pews fns) (lzip/leftmost-descendant node))))))
 
 (defn at
   "Takes a single hickory node (like a transformer function) and walks it
@@ -369,13 +451,12 @@
    the function can take, and an optional forth argument should be a
    vector of bindings to give to let that will be visible to the body.
    The rest of the arguments are selector and transformer pairs."
-  [name s args bindings & transformations]
-  `(let [html# (parse-fragment ~s)]
-     (defn ~name ~args
-       (let ~(if (vector? bindings) bindings [])
-         (fragment html# ~@(if (vector? bindings)
-                             transformations
-                             (cons bindings transformations)))))))
+  [name s fargs & args]
+  (let [[{bindings :let, parser :parser, resource :resource} fns] (split-keyword-args args)]
+    `(let [html# (parse-fragment ~s :parser ~parser :resource ~resource)]
+       (defn ~name ~fargs
+         (let ~(clj/or bindings [])
+           (fragment html# ~@fns))))))
 
 (defmacro defdocument
   "Define a function that transforms an HTML document. The first
@@ -385,13 +466,12 @@
    the function can take, and an optional forth argument should be a
    vector of bindings to give to let that will be visible to the body.
    The rest of the arguments are selector and transformer pairs."
-  [name s args bindings & transformations]
-  `(let [html# (parse ~s)]
-     (defn ~name ~args
-       (let ~(if (vector? bindings) bindings [])
-         (document html# ~@(if (vector? bindings)
-                             transformations
-                             (cons bindings transformations)))))))
+  [name s fargs & args]
+  (let [[{bindings :let, parser :parser, resource :resource} fns] (split-keyword-args args)]
+    `(let [html# (parse ~s :parser ~parser :resource ~resource)]
+       (defn ~name ~fargs
+         (let ~(clj/or bindings [])
+           (document html# ~@fns))))))
 
 ;; Screen scraping
 
