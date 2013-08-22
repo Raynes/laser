@@ -251,8 +251,8 @@
 
 (defn splice [index coll item]
   "Inserts item at index in coll."
-  (let [s (split-at index list)]
-    (concat (first s) insert (last s))))
+  (let [s (split-at index coll)]
+    (concat (first s) item (last s))))
 
 (defn mix-with-children [ns mixer]
   "Updates the children of a node with nodes based on a mixing function
