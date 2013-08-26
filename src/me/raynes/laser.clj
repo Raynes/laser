@@ -259,17 +259,20 @@
   that is passed the children of the node and the nodes to be mixed in."
   (fn [n] (update-in n [:content] mixer (nodes ns))))
 
-(defn append [& ns]
+(defn append
   "Inserts a node or sequence of nodes as the last child of the selected node."
-  (mix-with-children ns into))
+  ([ns] (mix-with-children ns into))
+  ([n & ns] (append (cons n ns))))
 
-(defn prepend [& ns]
+(defn prepend
   "Inserts a node or sequence of nodes as the first child of the selected node."
-  (mix-with-children ns #(into %2 %1)))
+  ([ns] (mix-with-children ns #(into %2 %1)))
+  ([n & ns] (prepend (cons n ns))))
 
-(defn insert-child [n & ns]
+(defn insert-child
   "Inserts a node or sequence of nodes as the nth child of the selected node"
-  (mix-with-children ns (partial splice n)))
+  ([ns] (mix-with-children ns (partial splice n)))
+  ([n & ns] (insert-child (cons n ns))))
 
 (defn attr
   "Set attribute attr to value."
