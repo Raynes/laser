@@ -254,30 +254,25 @@
   (let [s (split-at index coll)]
     (concat (first s) item (last s))))
 
-(defn mix-with-children [nodes-to-mix mixer]
+(defn mix-with-children [nodes-to-mix-in mixer]
   "Updates the children of a node with the output of a mixing function
   that is passed the children of the node and the nodes to be mixed in."
-  (fn mix
-    ([input-ns] 
-      (map 
-        (fn [n] (update-in n [:content ] mixer (nodes nodes-to-mix)))
-        (nodes input-ns)))
-    ([input-n & input-ns] (mix (cons input-n input-ns)))))
+  (fn [input-n & input-ns]
+    (map
+      (fn [n] (update-in n [:content] mixer (nodes nodes-to-mix-in)))
+      (concat (nodes input-n) input-ns))))
 
-(defn append
+(defn append [n & ns]
   "Inserts a node or sequence of nodes as the last child of the selected node."
-  ([ns] (mix-with-children ns into))
-  ([n & ns] (append (cons n ns))))
+  (mix-with-children (concat (nodes n) ns) into))
 
-(defn prepend
+(defn prepend [n & ns]
   "Inserts a node or sequence of nodes as the first child of the selected node."
-  ([ns] (mix-with-children ns #(into %2 %1)))
-  ([n & ns] (prepend (cons n ns))))
+  (mix-with-children (concat (nodes n) ns) #(into %2 %1)))
 
-(defn insert-child
+(defn insert-child [index n & ns]
   "Inserts a node or sequence of nodes as the ith child of the selected node"
-  ([index ns] (mix-with-children ns (partial splice index)))
-  ([index n & ns] (insert-child index (cons n ns))))
+  (mix-with-children (concat (nodes n) ns) (partial splice index)))
 
 (defn attr
   "Set attribute attr to value."
