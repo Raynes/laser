@@ -281,6 +281,11 @@
   [attr f & args]
   (fn [node] (apply update-in node [:attrs attr] f args)))
 
+(defn remove-attr
+  "Removes an attribute."
+  [attr]
+  (fn [node] (update-in node [:attrs] dissoc attr)))
+
 (defn classes
   "Set the node's class attribute to the string."
   [value]
