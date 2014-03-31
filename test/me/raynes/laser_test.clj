@@ -131,6 +131,13 @@
 (fact "about attr"
   ((l/attr :class "a") node) => (assoc node :attrs {:class "a"}))
 
+(fact "about remove-attr"
+  (let [node {:type :element,
+              :tag :a,
+              :attrs {:name "foo" :id "bar"},
+              :content nil}]
+    ((l/remove-attr :id) node) => (assoc node :attrs {:name "foo"})))
+
 (fact "about classes"
   ((l/classes "a b") node) => (assoc node :attrs {:class "a b"}))
 
