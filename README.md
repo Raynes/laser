@@ -1,4 +1,23 @@
-# laser
+# DEPRECATED laser
+
+**WARNING: THIS PROJECT IS NO LONGER MAINTAINED**
+
+When I started Laser, Enlive has not been committed to for many, many, many
+months and pull requests were untended to for literally a year or longer. I was
+under the impression that the project had begun to wind down and as such
+developed Laser to be a maintained alternative.
+
+However, since then, Enlive has been updated and improved substantially. Folks
+are using it successfully and it is much faster than Laser. I could spend time
+optimizing laser and making it faster, but I think our time is better spent on
+improving Enlive and building off of it. Not much point in laser if the codebase
+is ugly and bogged down by optimizations.
+
+I don't know how many people are using laser today. Refheap makes use of it. On
+my next iteration of refheap development I will be moving to a different
+templating system. Dunno if it'll be Enlive, but it won't be laser. ;)
+
+Cheers!
 
 ![Laser Gun](https://raw.github.com/Raynes/laser/master/laser.jpg)
 
